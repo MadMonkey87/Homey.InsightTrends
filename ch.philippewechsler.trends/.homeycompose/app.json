@@ -1,0 +1,40 @@
+{
+  "id": "ch.philippewechsler.trends",
+  "version": "1.0.0",
+  "compatibility": ">=4.0.0",
+  "brandColor": "#ff00b8",
+  "sdk": 2,
+  "name": {
+    "en": "Insight Trends"
+  },
+  "description": {
+    "en": "Analyze your insights and discover trends, averages, min/max and more!"
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Philippe Wechsler"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "MadMonkey87"
+      }
+    ]
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "madmonkey87"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ch.philippewechsler.trends",
+  "version": "1.0.0",
+  "main": "app.js",
+  "devDependencies": {
+    "homey": "^2.9.7"
+  },
+  "dependencies": {
+    "athom-api": "^3.2.14",
+    "fast-stats": "0.0.6",
+    "trend": "^0.3.0",
+    "trendline": "^0.3.1"
+  }
+}

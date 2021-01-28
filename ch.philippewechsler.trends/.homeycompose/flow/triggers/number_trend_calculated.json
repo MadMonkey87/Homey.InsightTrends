@@ -1,0 +1,75 @@
+{
+    "title": {
+        "en": "Trend calculated"
+    },
+    "hint": {
+        "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        }
+    ],
+    "tokens": [
+        {
+            "name": "min",
+            "type": "number",
+            "title": {
+                "en": "min"
+            },
+            "example": -25.3
+        },
+        {
+            "name": "max",
+            "type": "number",
+            "title": {
+                "en": "max"
+            },
+            "example": 75.2
+        },
+        {
+            "name": "amean",
+            "type": "number",
+            "title": {
+                "en": "average"
+            },
+            "example": 35.2
+        },
+        {
+            "name": "median",
+            "type": "number",
+            "title": {
+                "en": "median"
+            },
+            "example": 34.7
+        },
+        {
+            "name": "standardDeviation",
+            "type": "number",
+            "title": {
+                "en": "standard deviation"
+            },
+            "example": 34.7
+        },
+        {
+            "name": "trend",
+            "type": "number",
+            "title": {
+                "en": "trend"
+            },
+            "example": 1.05
+        },
+        {
+            "name": "size",
+            "type": "number",
+            "title": {
+                "en": "dataset size"
+            },
+            "example": 125
+        }
+    ]
+}

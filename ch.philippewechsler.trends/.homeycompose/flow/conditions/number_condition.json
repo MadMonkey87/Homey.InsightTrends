@@ -1,0 +1,150 @@
+{
+    "title": {
+        "en": "Analyse Insights"
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        },
+        {
+            "type": "number",
+            "name": "scope",
+            "title": {
+                "en": "Scope"
+            },
+            "hint": {
+                "en": "How long you want to go back in history?"
+            },
+            "min": 1,
+            "value": 15
+        },
+        {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+                "en": "Scope units"
+            },
+            "values": [
+                {
+                    "id": "1",
+                    "label": {
+                        "en": "Minutes"
+                    }
+                },
+                {
+                    "id": "60",
+                    "label": {
+                        "en": "Hours"
+                    }
+                },
+                {
+                    "id": "1440",
+                    "label": {
+                        "en": "Days"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "dropdown",
+            "name": "characteristic",
+            "title": {
+                "en": "Characteristic"
+            },
+            "values": [
+                {
+                    "id": "min",
+                    "label": {
+                        "en": "Minimum"
+                    }
+                },
+                {
+                    "id": "max",
+                    "label": {
+                        "en": "Maximum"
+                    }
+                },
+                {
+                    "id": "average",
+                    "label": {
+                        "en": "Average"
+                    }
+                },
+                {
+                    "id": "median",
+                    "label": {
+                        "en": "Median"
+                    }
+                },
+                {
+                    "id": "trend",
+                    "label": {
+                        "en": "Trend"
+                    }
+                },
+                {
+                    "id": "standardDeviation",
+                    "label": {
+                        "en": "Standard Deviation"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "dropdown",
+            "name": "operator",
+            "title": {
+                "en": "Operator"
+            },
+            "values": [
+                {
+                    "id": "smaller",
+                    "label": {
+                        "en": "Smaller than"
+                    }
+                },
+                {
+                    "id": "smaller_equal",
+                    "label": {
+                        "en": "Smaler than or equals to"
+                    }
+                },
+                {
+                    "id": "equal",
+                    "label": {
+                        "en": "Equal to"
+                    }
+                },
+                {
+                    "id": "not_equal",
+                    "label": {
+                        "en": "Not equal to"
+                    }
+                },
+                {
+                    "id": "greater_equal",
+                    "label": {
+                        "en": "Greater or equal than"
+                    }
+                },
+                {
+                    "id": "greater",
+                    "label": {
+                        "en": "Greater than"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "number",
+            "name": "value",
+            "title": {
+                "en": "Value"
+            }
+        }
+    ]
+}

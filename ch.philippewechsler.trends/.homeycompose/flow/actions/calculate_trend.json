@@ -1,0 +1,56 @@
+{
+    "title": {
+        "en": "Calculate trend"
+    },
+    "hint": {
+        "en": "Fetch the insights of a device capability and perform some analysis. To consume the result you need to create a new flow that gets triggered by the 'Trend calculated' card."
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        },
+        {
+            "type": "number",
+            "name": "scope",
+            "title": {
+                "en": "Scope"
+            },
+            "hint": {
+                "en": "How long you want to go back in history?"
+            },
+            "min": 1,
+            "value": 15
+        },
+        {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+                "en": "Scope units"
+            },
+            "values": [
+                {
+                    "id": "1",
+                    "label": {
+                        "en": "Minutes"
+                    }
+                },
+                {
+                    "id": "60",
+                    "label": {
+                        "en": "Hours"
+                    }
+                },
+                {
+                    "id": "1440",
+                    "label": {
+                        "en": "Days"
+                    }
+                }
+            ]
+        }
+    ]
+}
