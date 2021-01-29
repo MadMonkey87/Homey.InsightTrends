@@ -171,7 +171,7 @@ class InsightTrendsApp extends Homey.App {
           logs
             .filter(e => e.type == 'number')
             .map(e => {
-              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri }
+              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type }
               if (e.uriObj.iconObj) {
                 result.icon = e.uriObj.iconObj.url;
               }

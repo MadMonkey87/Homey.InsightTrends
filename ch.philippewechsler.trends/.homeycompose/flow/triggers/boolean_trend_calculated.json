@@ -1,6 +1,6 @@
 {
     "title": {
-        "en": "Trend calculated (number)"
+        "en": "Trend calculated (boolean)"
     },
     "hint": {
         "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
@@ -16,52 +16,36 @@
     ],
     "tokens": [
         {
-            "name": "min",
-            "type": "number",
+            "name": "hasTrueValue",
+            "type": "boolean",
             "title": {
-                "en": "min"
+                "en": "any value is 'true'"
             },
-            "example": -25.3
+            "example": true
         },
         {
-            "name": "max",
-            "type": "number",
+            "name": "hasFalseValue",
+            "type": "boolean",
             "title": {
-                "en": "max"
+                "en": "any value is 'false'"
             },
-            "example": 75.2
+            "example": false
         },
         {
             "name": "amean",
-            "type": "number",
+            "type": "boolean",
             "title": {
                 "en": "average"
             },
-            "example": 35.2
+            "example": false
         },
         {
             "name": "median",
-            "type": "number",
+            "type": "boolean",
             "title": {
                 "en": "median"
             },
-            "example": 34.7
-        },
-        {
-            "name": "standardDeviation",
-            "type": "number",
-            "title": {
-                "en": "standard deviation"
-            },
-            "example": 34.7
-        },
-        {
-            "name": "trend",
-            "type": "number",
-            "title": {
-                "en": "trend"
-            },
-            "example": 1.05
+            "example": false
         },
         {
             "name": "size",
