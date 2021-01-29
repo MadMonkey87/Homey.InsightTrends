@@ -18,7 +18,18 @@ class InsightTrendsApp extends Homey.App {
         })
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
+
+    const booleanCalculatedTrigger = new Homey.FlowCardTrigger('boolean_trend_calculated')
+    booleanCalculatedTrigger
+      .register()
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          resolve(args.insight.uri == state.uri && args.insight.id == state.id);
+        })
+      })
+      .getArgument('insight')
+      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
     const numberCondition = new Homey.FlowCardCondition('number_condition')
       .register()
@@ -35,7 +46,7 @@ class InsightTrendsApp extends Homey.App {
         });
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
 
     const calculateTrendAction = new Homey.FlowCardAction('calculate_trend')
       .register()
@@ -43,6 +54,8 @@ class InsightTrendsApp extends Homey.App {
         return new Promise(async (resolve, reject) => {
           try {
             const logs = await this.getLogEntries(args);
+
+            // todo: number based analysis
 
             let start = Date.now();
             const trends = createTrend(logs, 'x', 'y');
@@ -70,7 +83,7 @@ class InsightTrendsApp extends Homey.App {
         });
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.allInsightAutocompleteListener);
   }
 
   getApi() {
@@ -162,7 +175,19 @@ class InsightTrendsApp extends Homey.App {
     return result;
   }
 
-  insightAutocompleteListener(query, args) {
+  numberInsightAutocompleteListener(query, args) {
+    return this.insightAutocompleteListener(query, args, { type: 'number' });
+  }
+
+  booleanInsightAutocompleteListener(query, args) {
+    return this.insightAutocompleteListener(query, args, { type: 'boolean' });
+  }
+
+  allInsightAutocompleteListener(query, args) {
+    return this.insightAutocompleteListener(query, args, {});
+  }
+
+  insightAutocompleteListener(query, args, filter) {
     return new Promise(async (resolve, reject) => {
       try {
         const api = await Homey.app.getApi();
