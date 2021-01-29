@@ -175,9 +175,7 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getLogEntries(args) {
-
-    const minutes = args.scope * parseInt(args.scopeUnit);
+  getResolution(minutes) {
     let resolution = 'lastHour';
     if (minutes <= 60) {
       resolution = 'lastHour';
@@ -200,9 +198,12 @@ class InsightTrendsApp extends Homey.App {
     } else {
       resolution = 'lastYear';
     }
+    return resolution;
+  }
 
-    Homey.app.log('minutes', minutes);
-    Homey.app.log('resolution', resolution);
+  async getLogEntries(args) {
+    const minutes = args.scope * parseInt(args.scopeUnit);
+    let resolution = this.getResolution(minutes);
 
     let start = Date.now();
     const api = await Homey.app.getApi();
@@ -250,6 +251,7 @@ class InsightTrendsApp extends Homey.App {
         resolve(
           logs
             .filter(e => !filter.type || e.type == filter.type)
+            .filter(e => search == null || search == '' || e.title.search() >= 0 || e.uriObj.name.search() >= 0)
             .map(e => {
               let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type }
               if (e.uriObj.iconObj) {
@@ -260,12 +262,68 @@ class InsightTrendsApp extends Homey.App {
               }
               return result;
             })
+            .sort((i, j) => i.title < j.title)
         );
       } catch (error) {
         Homey.app.log('error fetching insights', error);
         reject(error);
       }
     });
+  }
+
+  async getInsights(search, callback) {
+    try {
+      const api = await Homey.app.getApi();
+      const logs = await api.insights.getLogs(filter);
+      callback(null,
+        logs
+          .filter(e => search == null || search == '' || e.title.search() >= 0 || e.uriObj.name.search() >= 0)
+          .map(e => {
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units }
+            if (e.uriObj.iconObj) {
+              result.icon = e.uriObj.iconObj.url;
+            }
+            if (e.units) {
+              result.name = result.name + ' (' + e.units + ')';
+            }
+            return result;
+          })
+          .sort((i, j) => i.title < j.title)
+      );
+    } catch (error) {
+      Homey.app.log('error fetching insights', error);
+      callback(error, null);
+    }
+  }
+
+  async getTrends(id, uid, scope, scopeUnit, callback) {
+    try {
+      const minutes = scope * parseInt(scopeUnit);
+      const resolution = this.getResolution(minutes);
+
+      const api = await Homey.app.getApi();
+      const minDate = Date.now() - minutes * 60000;
+      const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
+
+      const booleanBasedCapability = args.insight.type == 'boolean';
+
+      let result = [];
+      for (let i = entries.values.length - 1; i >= 0; i--) {
+        let entry = entries.values[i];
+        const date = Date.parse(entry.t);
+
+        if (date < minDate) {
+          break;
+        }
+        if (entry.v != null) {
+          result.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+        }
+      }
+      callback(null, result);
+    } catch (error) {
+      Homey.app.log('error fetching insights', error);
+      callback(error, null);
+    }
   }
 
 }
