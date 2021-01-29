@@ -57,7 +57,7 @@
             },
             "values": [
                 {
-                    "id": "hasFalseValue",
+                    "id": "hasTrueValue",
                     "label": {
                         "en": "Any value is 'true'"
                     }

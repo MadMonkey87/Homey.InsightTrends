@@ -37,8 +37,8 @@ class InsightTrendsApp extends Homey.App {
         return new Promise(async (resolve, reject) => {
           try {
             const logs = await this.getLogEntries(args);
-            const value = this.getValue(logs, args);
-            resolve(this.compareValue(value, args));
+            const value = this.getNumberValue(logs, args);
+            resolve(this.compareNumberValue(value, args));
           } catch (e) {
             this.log(e);
             reject(e);
@@ -48,6 +48,23 @@ class InsightTrendsApp extends Homey.App {
       .getArgument('insight')
       .registerAutocompleteListener(this.numberInsightAutocompleteListener);
 
+    const booleanCondition = new Homey.FlowCardCondition('boolean_condition')
+      .register()
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const logs = await this.getLogEntries(args);
+            const value = this.getBooleanValue(logs, args);
+            resolve(this.compareBooleanValue(value, args));
+          } catch (e) {
+            this.log(e);
+            reject(e);
+          }
+        });
+      })
+      .getArgument('insight')
+      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
+
     const calculateTrendAction = new Homey.FlowCardAction('calculate_trend')
       .register()
       .registerRunListener(async (args, state) => {
@@ -55,25 +72,42 @@ class InsightTrendsApp extends Homey.App {
           try {
             const logs = await this.getLogEntries(args);
 
-            // todo: number based analysis
-
+            const booleanBasedCapability = args.insight.type == 'boolean';
+            const state = { uri: args.insight.uri, id: args.insight.id };
             let start = Date.now();
-            const trends = createTrend(logs, 'x', 'y');
+
             const stats = new Stats().push(logs.map(e => e.y));
             const range = stats.range();
-            const tokens = {
-              min: range[0],
-              max: range[1],
-              amean: stats.amean(),
-              median: stats.median(),
-              standardDeviation: stats.σ(),
-              trend: trends.slope,
-              size: logs.length
-            };
-            this.log('calculation completed', (Date.now() - start) + ' MS', tokens);
 
-            const state = { uri: args.insight.uri, id: args.insight.id };
-            numberCalculatedTrigger.trigger(tokens, state);
+            if (booleanBasedCapability) {
+              const booleanTokens = {
+                hasFalseValue: logs.some(e => e.y == false),
+                hasTrueValue: logs.some(e => e.y == true),
+                min: range[0] >= 0.5 ? true : false,
+                max: range[1] >= 0.5 ? true : false,
+                amean: stats.amean() >= 0.5 ? true : false,
+                median: stats.median() >= 0.5 ? true : false,
+                size: logs.length
+              };
+              this.log('boolean calculation completed', (Date.now() - start) + ' MS', booleanTokens);
+
+              booleanCalculatedTrigger.trigger(numberTokens, state);
+            } else {
+              const trends = createTrend(logs, 'x', 'y');
+
+              const numberTokens = {
+                min: range[0],
+                max: range[1],
+                amean: stats.amean(),
+                median: stats.median(),
+                standardDeviation: stats.σ(),
+                trend: trends.slope,
+                size: logs.length
+              };
+              this.log('number calculation completed', (Date.now() - start) + ' MS', numberTokens);
+
+              numberCalculatedTrigger.trigger(numberTokens, state);
+            }
 
             resolve();
           } catch (e) {
@@ -93,7 +127,7 @@ class InsightTrendsApp extends Homey.App {
     return this.api;
   }
 
-  compareValue(value, args) {
+  compareNumberValue(value, args) {
     switch (args.operator) {
       case 'smaller': return value > args.value;
       case 'smaller_equal': return value >= args.value;
@@ -105,7 +139,15 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  getValue(logs, args) {
+  compareBooleanValue(value, args) {
+    switch (args.operator) {
+      case 'true': return value == true;
+      case 'false': return value == false;
+      default: false;
+    }
+  }
+
+  getNumberValue(logs, args) {
     if (args.characteristic == 'trend') {
       const trends = createTrend(logs, 'x', 'y');
       return trends.slope;
@@ -118,6 +160,17 @@ class InsightTrendsApp extends Homey.App {
       case 'average': return stats.amean();
       case 'median': return stats.median();
       case 'standardDeviation': return stats.σ();
+      default: return null;
+    }
+  }
+
+  getBooleanValue(logs, args) {
+    const stats = new Stats().push(logs.map(e => e.y));
+    switch (args.characteristic) {
+      case 'hasTrueValue': return logs.some(e => e.y == true);
+      case 'hasFalseValue': return logs.some(e => e.y == false);
+      case 'average': return stats.amean() >= 0.5 ? true : false;
+      case 'median': return stats.median() >= 0.5 ? true : false;
       default: return null;
     }
   }
@@ -157,6 +210,8 @@ class InsightTrendsApp extends Homey.App {
     const entries = await api.insights.getLogEntries({ uri: args.insight.uri, id: args.insight.id, resolution: resolution });
     this.log('fetching entries completed', (Date.now() - start) + ' MS');
 
+    const booleanBasedCapability = args.insight.type == 'boolean';
+
     start = Date.now();
     let result = [];
     for (let i = entries.values.length - 1; i >= 0; i--) {
@@ -166,8 +221,8 @@ class InsightTrendsApp extends Homey.App {
       if (date < minDate) {
         break;
       }
-      if (entry.v) {
-        result.push({ x: date / 1000, y: entry.v })
+      if (entry.v != null) {
+        result.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
       }
     }
     this.log('transforming entries completed', (Date.now() - start) + ' MS');
@@ -191,10 +246,10 @@ class InsightTrendsApp extends Homey.App {
     return new Promise(async (resolve, reject) => {
       try {
         const api = await Homey.app.getApi();
-        const logs = await api.insights.getLogs({ type: 'number' });
+        const logs = await api.insights.getLogs(filter);
         resolve(
           logs
-            .filter(e => e.type == 'number')
+            .filter(e => !filter.type || e.type == filter.type)
             .map(e => {
               let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type }
               if (e.uriObj.iconObj) {
