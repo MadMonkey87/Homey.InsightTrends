@@ -42,7 +42,67 @@
     "triggers": [
       {
         "title": {
-          "en": "Trend calculated"
+          "en": "Trend calculated (boolean)"
+        },
+        "hint": {
+          "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "hasTrueValue",
+            "type": "boolean",
+            "title": {
+              "en": "any value is 'true'"
+            },
+            "example": true
+          },
+          {
+            "name": "hasFalseValue",
+            "type": "boolean",
+            "title": {
+              "en": "any value is 'false'"
+            },
+            "example": false
+          },
+          {
+            "name": "amean",
+            "type": "boolean",
+            "title": {
+              "en": "average"
+            },
+            "example": false
+          },
+          {
+            "name": "median",
+            "type": "boolean",
+            "title": {
+              "en": "median"
+            },
+            "example": false
+          },
+          {
+            "name": "size",
+            "type": "number",
+            "title": {
+              "en": "dataset size"
+            },
+            "example": 125
+          }
+        ],
+        "id": "boolean_trend_calculated"
+      },
+      {
+        "title": {
+          "en": "Trend calculated (number)"
         },
         "hint": {
           "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
@@ -120,7 +180,115 @@
     "conditions": [
       {
         "title": {
-          "en": "Analyse Insights"
+          "en": "Analyse Insights (boolean)"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          },
+          {
+            "type": "number",
+            "name": "scope",
+            "title": {
+              "en": "Scope"
+            },
+            "hint": {
+              "en": "How long you want to go back in history?"
+            },
+            "min": 1,
+            "value": 15
+          },
+          {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+              "en": "Scope units"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "Minutes"
+                }
+              },
+              {
+                "id": "60",
+                "label": {
+                  "en": "Hours"
+                }
+              },
+              {
+                "id": "1440",
+                "label": {
+                  "en": "Days"
+                }
+              }
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "characteristic",
+            "title": {
+              "en": "Characteristic"
+            },
+            "values": [
+              {
+                "id": "hasTrueValue",
+                "label": {
+                  "en": "Any value is 'true'"
+                }
+              },
+              {
+                "id": "hasFalseValue",
+                "label": {
+                  "en": "Any value is 'false'"
+                }
+              },
+              {
+                "id": "average",
+                "label": {
+                  "en": "Average"
+                }
+              },
+              {
+                "id": "median",
+                "label": {
+                  "en": "Median"
+                }
+              }
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "operator",
+            "title": {
+              "en": "Operator"
+            },
+            "values": [
+              {
+                "id": "true",
+                "label": {
+                  "en": "True"
+                }
+              },
+              {
+                "id": "false",
+                "label": {
+                  "en": "False"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "boolean_condition"
+      },
+      {
+        "title": {
+          "en": "Analyse Insights (number)"
         },
         "args": [
           {
