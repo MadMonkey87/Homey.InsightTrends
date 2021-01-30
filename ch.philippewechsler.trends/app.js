@@ -278,7 +278,7 @@ class InsightTrendsApp extends Homey.App {
         logs
           .filter(e => search == null || search == '' || e.title.search(search) >= 0 || e.uriObj.name.search(search) >= 0)
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean' }
             if (e.uriObj.iconObj) {
               result.icon = e.uriObj.iconObj.url;
             }
@@ -295,15 +295,13 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getTrends(id, uid, minutes, callback) {
+  async getTrends(id, uid, minutes, booleanBasedCapability, callback) {
     try {
       const resolution = this.getResolution(minutes);
 
       const api = await Homey.app.getApi();
       const minDate = Date.now() - minutes * 60000;
       const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
-
-      const booleanBasedCapability = args.insight.type == 'boolean';
 
       let result = {
         entries: [],
@@ -321,26 +319,26 @@ class InsightTrendsApp extends Homey.App {
         }
       }
 
-      const stats = new Stats().push(logs.map(e => e.y));
+      const stats = new Stats().push(result.entries.map(e => e.y));
       const range = stats.range();
 
       if (booleanBasedCapability) {
-        result.hasFalseValue = logs.some(e => e.y == false);
-        result.hasTrueValue = logs.some(e => e.y == true);
+        result.hasFalseValue = result.entries.some(e => e.y == false);
+        result.hasTrueValue = result.entries.some(e => e.y == true);
         result.min = range[0] >= 0.5 ? true : false;
         result.max = range[1] >= 0.5 ? true : false;
         result.amean = stats.amean() >= 0.5 ? true : false;
         result.median = stats.median() >= 0.5 ? true : false;
-        result.size = logs.length;
+        result.size = result.entries.length;
       } else {
-        const trends = createTrend(logs, 'x', 'y');
+        const trends = createTrend(result.entries, 'x', 'y');
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();
         result.median = stats.median();
         result.standardDeviation = stats.σ();
         result.trend = trends.slope;
-        result.size = logs.length;
+        result.size = result.entries.length;
       }
 
       callback(null, result);
