@@ -251,7 +251,6 @@ class InsightTrendsApp extends Homey.App {
         resolve(
           logs
             .filter(e => !filter.type || e.type == filter.type)
-            .filter(e => search == null || search == '' || e.title.search() >= 0 || e.uriObj.name.search() >= 0)
             .map(e => {
               let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type }
               if (e.uriObj.iconObj) {

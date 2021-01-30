@@ -38,14 +38,12 @@
                         <div class="col">
                             <label>Insight</label>
                             <div class="dropdown dropup">
-                                <button class="btn btn-primary" type="button" id="insight" data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false" style="width: 100%; text-align: left;">
+                                <button class="btn btn-primary" type="button" id="insightDropdownButton"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="width: 100%; text-align: left;">
                                     Insight 1
                                 </button>
-                                <div class="dropdown-menu" aria-labelledby="pollingDropDown">
-                                    <a class="dropdown-item" href="#" id="1">Insight 1</a>
-                                    <a class="dropdown-item" href="#" id="60">Insight 2</a>
-                                    <a class="dropdown-item" href="#" id="1440">Insight 3</a>
+                                <div class="dropdown-menu" aria-labelledby="pollingDropDown" id="insightDropdownMenu">
                                 </div>
                             </div>
                         </div>
@@ -55,9 +53,9 @@
                         <div class="col">
                             <label>Filter</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="scope" placeholder="Search...">
+                                <input type="text" class="form-control" placeholder="Search..." id="insightFilter">
                                 <div class="input-group-prepend">
-                                    <button type="button" class="btn btn-primary"
+                                    <button type="button" class="btn btn-primary" id="insightRefreshButton"
                                         style="border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
                                         <span class="fa fa-refresh"></span>
                                     </button>
@@ -70,18 +68,19 @@
                         <div class="col">
                             <label>Scope</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="scope" min="1">
+                                <input type="number" class="form-control" id="scope" min="1" id="scope">
                                 <div class="input-group-prepend">
                                     <div class="dropdown dropup">
-                                        <button class="btn btn-primary dropdown-toggle" type="button" id="scopeUnits"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                            id="scopeUnitsButton" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false"
                                             style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                             Minutes
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="pollingDropDown">
-                                            <a class="dropdown-item" href="#" id="1">Minutes</a>
-                                            <a class="dropdown-item" href="#" id="60">Hours</a>
-                                            <a class="dropdown-item" href="#" id="1440">Days</a>
+                                            <a class="dropdown-item" href="#">Minutes</a>
+                                            <a class="dropdown-item" href="#">Hours</a>
+                                            <a class="dropdown-item" href="#">Days</a>
                                         </div>
                                     </div>
                                 </div>
@@ -177,9 +176,88 @@
 
             if (Homey.isMock) {
                 //Homey.alert('Warning: Homey is mocked only!!!')
+                let store = {};
+                Homey.addRoutes([
+                    {
+                        method: 'GET',
+                        path: '/insights',
+                        public: false,
+                        fn: function (args, callback) {
+                            console.log('search insights: ' + args.query.search)
+                            return callback(null, [{
+                                name: 'temperature 1', description: 'device 1', id: '1', uri: 'uri', type: 'number', units: '%'
+                            }, {
+                                name: 'temperature 2', description: 'device 2', id: '1', uri: 'uri', type: 'number', units: '%'
+                            }, {
+                                name: 'temperature 3', description: 'device 3', id: '1', uri: 'uri', type: 'number', units: '%'
+                            }])
+                        }
+                    },
+                    {
+                        method: 'GET',
+                        path: '/trends',
+                        public: false,
+                        fn: async function (args, callback) {
+                            await Homey.app.getTrends(args.query.id, args.query.uid, args.query.scope, args.query.scopeUnit, (err, result) => {
+                                if (err) {
+                                    callback(err, null)
+                                } else {
+                                    callback(null, result)
+                                }
+                            })
+                        }
+                    }
+                ]);
+            }
+
+            const insightDropdownButton = document.getElementById('insightDropdownButton');
+            const insightDropdownMenu = document.getElementById('insightDropdownMenu');
+            const insightFilter = document.getElementById('insightFilter');
+            const insightRefreshButton = document.getElementById('insightRefreshButton');
+            const scope = document.getElementById('scope');
+            const scopeUnitsButton = document.getElementById('scopeUnitsButton');
+
+            insightFilter.addEventListener('input', (e) => { loadInsights() });
+            insightRefreshButton.addEventListener('click', (e) => { loadInsights() });
+
+            let selectedInsight = null;
+
+            function loadInsights() {
+                insightDropdownButton.innerText = 'loading';
+                insightDropdownButton.disabled = true;
+                Homey.api('GET', '/insights?search=' + insightFilter.value, {}, function (error, data) {
+                    insightDropdownButton.disabled = false;
+                    if (error) {
+                        insightDropdownButton.innerText = 'error';
+                    } else {
+                        let html = '';
+                        for (var i = 0; i < data.length; i++) {
+                            html += `
+                                <a class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}'})">${data[i].name}</a>
+                            `;
+                        }
+                        insightDropdownMenu.innerHTML = html;
+                    }
+                    window.selectInsight(null);
+                })
+            }
+
+            function loadTrends() {
+
+            }
+
+            window.selectInsight = function (insight) {
+                selectedInsight = insight;
+                if (selectedInsight == null) {
+                    insightDropdownButton.innerText = 'please select';
+                } else {
+                    insightDropdownButton.innerText = selectedInsight.title;
+                }
             }
 
             Homey.ready()
+
+            loadInsights();
 
         }
 
