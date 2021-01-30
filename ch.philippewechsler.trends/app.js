@@ -232,15 +232,15 @@ class InsightTrendsApp extends Homey.App {
   }
 
   numberInsightAutocompleteListener(query, args) {
-    return this.insightAutocompleteListener(query, args, { type: 'number' });
+    return Homey.app.insightAutocompleteListener(query, args, { type: 'number' });
   }
 
   booleanInsightAutocompleteListener(query, args) {
-    return this.insightAutocompleteListener(query, args, { type: 'boolean' });
+    return Homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
   }
 
   allInsightAutocompleteListener(query, args) {
-    return this.insightAutocompleteListener(query, args, {});
+    return Homey.app.insightAutocompleteListener(query, args, {});
   }
 
   insightAutocompleteListener(query, args, filter) {
