@@ -273,10 +273,10 @@ class InsightTrendsApp extends Homey.App {
   async getInsights(search, callback) {
     try {
       const api = await Homey.app.getApi();
-      const logs = await api.insights.getLogs(filter);
+      const logs = await api.insights.getLogs({});
       callback(null,
         logs
-          .filter(e => search == null || search == '' || e.title.search() >= 0 || e.uriObj.name.search() >= 0)
+          .filter(e => search == null || search == '' || e.title.search(search) >= 0 || e.uriObj.name.search(search) >= 0)
           .map(e => {
             let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units }
             if (e.uriObj.iconObj) {
@@ -295,9 +295,8 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getTrends(id, uid, scope, scopeUnit, callback) {
+  async getTrends(id, uid, minutes, callback) {
     try {
-      const minutes = scope * parseInt(scopeUnit);
       const resolution = this.getResolution(minutes);
 
       const api = await Homey.app.getApi();
@@ -306,7 +305,10 @@ class InsightTrendsApp extends Homey.App {
 
       const booleanBasedCapability = args.insight.type == 'boolean';
 
-      let result = [];
+      let result = {
+        entries: [],
+        booleanBasedCapability: booleanBasedCapability
+      };
       for (let i = entries.values.length - 1; i >= 0; i--) {
         let entry = entries.values[i];
         const date = Date.parse(entry.t);
@@ -315,9 +317,32 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
+
+      const stats = new Stats().push(logs.map(e => e.y));
+      const range = stats.range();
+
+      if (booleanBasedCapability) {
+        result.hasFalseValue = logs.some(e => e.y == false);
+        result.hasTrueValue = logs.some(e => e.y == true);
+        result.min = range[0] >= 0.5 ? true : false;
+        result.max = range[1] >= 0.5 ? true : false;
+        result.amean = stats.amean() >= 0.5 ? true : false;
+        result.median = stats.median() >= 0.5 ? true : false;
+        result.size = logs.length;
+      } else {
+        const trends = createTrend(logs, 'x', 'y');
+        result.min = range[0];
+        result.max = range[1];
+        result.amean = stats.amean();
+        result.median = stats.median();
+        result.standardDeviation = stats.σ();
+        result.trend = trends.slope;
+        result.size = logs.length;
+      }
+
       callback(null, result);
     } catch (error) {
       Homey.app.log('error fetching insights', error);

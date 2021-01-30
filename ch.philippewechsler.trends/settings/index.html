@@ -68,7 +68,7 @@
                         <div class="col">
                             <label>Scope</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="scope" min="1" id="scope">
+                                <input type="number" class="form-control" id="scope" min="1" id="scope" value="15">
                                 <div class="input-group-prepend">
                                     <div class="dropdown dropup">
                                         <button class="btn btn-primary dropdown-toggle" type="button"
@@ -78,9 +78,9 @@
                                             Minutes
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="pollingDropDown">
-                                            <a class="dropdown-item" href="#">Minutes</a>
-                                            <a class="dropdown-item" href="#">Hours</a>
-                                            <a class="dropdown-item" href="#">Days</a>
+                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(1)">Minutes</a>
+                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(60)">Hours</a>
+                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(1440)">Days</a>
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                             <div class="form-group">
                                 <label>Trend</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="trend">
                                 </div>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                             <div class="form-group">
                                 <label>Standard deviation</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="standarddeviation">
                                 </div>
                             </div>
                         </div>
@@ -118,7 +118,7 @@
                             <div class="form-group">
                                 <label>Average</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="amean">
                                 </div>
                             </div>
                         </div>
@@ -126,7 +126,7 @@
                             <div class="form-group">
                                 <label>Median</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="median">
                                 </div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                             <div class="form-group">
                                 <label>Minimum</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="min">
                                 </div>
                             </div>
                         </div>
@@ -144,7 +144,7 @@
                             <div class="form-group">
                                 <label>Maximum</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" disabled>
+                                    <input type="text" class="form-control" disabled value="-" id="max">
                                 </div>
                             </div>
                         </div>
@@ -183,13 +183,12 @@
                         path: '/insights',
                         public: false,
                         fn: function (args, callback) {
-                            console.log('search insights: ' + args.query.search)
                             return callback(null, [{
                                 name: 'temperature 1', description: 'device 1', id: '1', uri: 'uri', type: 'number', units: '%'
                             }, {
-                                name: 'temperature 2', description: 'device 2', id: '1', uri: 'uri', type: 'number', units: '%'
+                                name: 'temperature 2', description: 'device 2', id: '2', uri: 'uri', type: 'number', units: '%'
                             }, {
-                                name: 'temperature 3', description: 'device 3', id: '1', uri: 'uri', type: 'number', units: '%'
+                                name: 'temperature 3', description: 'device 3', id: '3', uri: 'uri', type: 'number', units: '%'
                             }])
                         }
                     },
@@ -198,12 +197,14 @@
                         path: '/trends',
                         public: false,
                         fn: async function (args, callback) {
-                            await Homey.app.getTrends(args.query.id, args.query.uid, args.query.scope, args.query.scopeUnit, (err, result) => {
-                                if (err) {
-                                    callback(err, null)
-                                } else {
-                                    callback(null, result)
-                                }
+                            return callback(null, {
+                                min: -100,
+                                max: 100,
+                                amean: 10,
+                                median: 15,
+                                standardDeviation: 5,
+                                trend: 0.45,
+                                size: 10
                             })
                         }
                     }
@@ -221,6 +222,7 @@
             insightRefreshButton.addEventListener('click', (e) => { loadInsights() });
 
             let selectedInsight = null;
+            let scopeUnit = 1;
 
             function loadInsights() {
                 insightDropdownButton.innerText = 'loading';
@@ -233,7 +235,7 @@
                         let html = '';
                         for (var i = 0; i < data.length; i++) {
                             html += `
-                                <a class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}'})">${data[i].name}</a>
+                                <a class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}'})">${data[i].name}</a>
                             `;
                         }
                         insightDropdownMenu.innerHTML = html;
@@ -243,7 +245,21 @@
             }
 
             function loadTrends() {
-
+                if (selectedInsight == null) {
+                    return;
+                }
+                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value, {}, function (error, data) {
+                    if (error) {
+                        // todo
+                    } else {
+                        document.getElementById('trend').value = data.trend;
+                        document.getElementById('standarddeviation').value = data.standardDeviation;
+                        document.getElementById('min').value = data.min + ' ' + selectedInsight.units;
+                        document.getElementById('max').value = data.max + ' ' + selectedInsight.units;
+                        document.getElementById('amean').value = data.amean + ' ' + selectedInsight.units;
+                        document.getElementById('median').value = data.median + ' ' + selectedInsight.units;
+                    }
+                })
             }
 
             window.selectInsight = function (insight) {
@@ -252,13 +268,24 @@
                     insightDropdownButton.innerText = 'please select';
                 } else {
                     insightDropdownButton.innerText = selectedInsight.title;
+                    loadTrends();
                 }
+            }
+
+            window.setScopeUnit = function (minutes) {
+                scopeUnit = minutes;
+                switch (scopeUnit) {
+                    case 1: scopeUnitsButton.innerText = 'Minutes'; break;
+                    case 60: scopeUnitsButton.innerText = 'Hours'; break;
+                    case 1440: scopeUnitsButton.innerText = 'Days'; break;
+                    default: scopeUnitsButton.innerText = 'Error'; break;
+                }
+                loadInsights();
             }
 
             Homey.ready()
 
             loadInsights();
-
         }
 
     </script>
