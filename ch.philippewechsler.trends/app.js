@@ -278,7 +278,7 @@ class InsightTrendsApp extends Homey.App {
         logs
           .filter(e => search == null || search == '' || e.title.search(search) >= 0 || e.uriObj.name.search(search) >= 0)
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean' }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: e.color ?? '#ff00b8' }
             if (e.uriObj.iconObj) {
               result.icon = e.uriObj.iconObj.url;
             }
@@ -295,12 +295,14 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getTrends(id, uid, minutes, booleanBasedCapability, callback) {
+  async getTrends(id, uid, minutes, callback) {
     try {
       const resolution = this.getResolution(minutes);
 
       const api = await Homey.app.getApi();
       const minDate = Date.now() - minutes * 60000;
+      const entry = await api.insights.getLog({ uri: uid, id: id });
+      const booleanBasedCapability = entry.type == 'boolean';
       const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
 
       let result = {

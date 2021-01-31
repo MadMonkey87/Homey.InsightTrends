@@ -8,8 +8,7 @@
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/Chart.min.js"></script>
-    <script src="js/chartjs-plugin-annotation.min.js"></script>
-    <script src="js/chartjs-plugin-dragdata.min.js"></script>
+
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/animation.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
@@ -184,11 +183,11 @@
                         public: false,
                         fn: function (args, callback) {
                             return callback(null, [{
-                                name: 'temperature 1', description: 'device 1', id: '1', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false
+                                name: 'temperature 1', description: 'device 1', id: '1', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#ff0000'
                             }, {
-                                name: 'temperature 2', description: 'device 2', id: '2', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false
+                                name: 'temperature 2', description: 'device 2', id: '2', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#00ff00'
                             }, {
-                                name: 'temperature 3', description: 'device 3', id: '3', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false
+                                name: 'temperature 3', description: 'device 3', id: '3', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#0000ff'
                             }])
                         }
                     },
@@ -197,7 +196,13 @@
                         path: '/trends',
                         public: false,
                         fn: async function (args, callback) {
+                            let entries = [];
+                            let now = Date.now();
+                            for (let i = 0; i < 100; i++) {
+                                entries.push({ x: now + (i * 1000 * 60) - (100 * 1000 * 60), y: Math.random() * 200 - 100 });
+                            }
                             return callback(null, {
+                                entries: entries,
                                 min: -100,
                                 max: 100,
                                 amean: 10,
@@ -235,7 +240,7 @@
                         let html = '';
                         for (var i = 0; i < data.length; i++) {
                             html += `
-                                <a class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}',booleanBasedCapability:${data[i].booleanBasedCapability}})">${data[i].name}</a>
+                                <a class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}',color:'${data[i].color}',booleanBasedCapability:${data[i].booleanBasedCapability}})">${data[i].name}</a>
                             `;
                         }
                         insightDropdownMenu.innerHTML = html;
@@ -258,6 +263,11 @@
                         document.getElementById('max').value = data.max + ' ' + selectedInsight.units;
                         document.getElementById('amean').value = data.amean + ' ' + selectedInsight.units;
                         document.getElementById('median').value = data.median + ' ' + selectedInsight.units;
+
+                        chart.data.datasets[0].data = data.entries.map(e => e);
+                        chart.data.datasets[0].borderColor = selectedInsight.color;
+                        //chart.data.datasets[0].borderColor = selectedInsight.color;
+                        chart.update();
                     }
                 })
             }
@@ -282,6 +292,45 @@
                 }
                 loadInsights();
             }
+
+
+            var chartOptions = {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            showLine: true,
+                            borderColor: 'rgb(0, 170, 255)',
+                            borderWidth: 3,
+                            backgroundColor: 'transparent',
+                            pointRadius: 0,
+                            pointBorderWidth: 0,
+                            data: [],
+                            //cubicInterpolationMode: 'monotone',
+                            //lineTension: 0.5
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        xAxes: [
+                            {
+                                id: 'xAxis'
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                id: 'yAxis'
+                            }
+                        ]
+                    }
+                }
+            }
+
+            let chart = new Chart(document.getElementById('chart').getContext('2d'), chartOptions);
 
             Homey.ready()
 
