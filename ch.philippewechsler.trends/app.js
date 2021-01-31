@@ -317,7 +317,7 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.entries.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
 
@@ -334,6 +334,10 @@ class InsightTrendsApp extends Homey.App {
         result.size = result.entries.length;
       } else {
         const trends = createTrend(result.entries, 'x', 'y');
+        Homey.app.log(trends.slope);
+        Homey.app.log(trends.slope * minutes);
+        Homey.app.log(trends.slope * minutes * 1000);
+        Homey.app.log(trends.slope * minutes * 1000 * 60);
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();
@@ -342,7 +346,6 @@ class InsightTrendsApp extends Homey.App {
         result.trend = trends.slope;
         result.size = result.entries.length;
       }
-
       callback(null, result);
     } catch (error) {
       Homey.app.log('error fetching insights', error);
