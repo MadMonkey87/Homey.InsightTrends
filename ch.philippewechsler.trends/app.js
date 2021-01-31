@@ -276,9 +276,9 @@ class InsightTrendsApp extends Homey.App {
       const logs = await api.insights.getLogs({});
       callback(null,
         logs
-          .filter(e => search == null || search == '' || e.title.search(search) >= 0 || e.uriObj.name.search(search) >= 0)
+          .filter(e => search == null || search == '' || (e.title && e.title.search(search) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.search(search) >= 0))
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: e.color ?? '#ff00b8' }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: e.color ? e.color : '#ff00b8' }
             if (e.uriObj.iconObj) {
               result.icon = e.uriObj.iconObj.url;
             }

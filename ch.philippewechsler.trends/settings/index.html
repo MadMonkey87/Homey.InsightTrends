@@ -7,6 +7,7 @@
     <script src="js/jquery-3.5.1.slim.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="js/Chart.min.js"></script>
 
     <link rel="stylesheet" href="css/bootstrap.css">
@@ -51,10 +52,30 @@
                     <div class="row">
                         <div class="col">
                             <label>Filter</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search..." id="insightFilter">
-                                <div class="input-group-prepend">
-                                    <button type="button" class="btn btn-primary" id="insightRefreshButton"
+                            <div class="form-group"></div>
+                            <input type="text" class="form-control" placeholder="Search..." id="insightFilter">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Scope</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="scope" min="1" id="scope" value="15">
+                            <div class="input-group-prepend">
+                                <div class="dropdown dropup">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="scopeUnitsButton"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                        Minutes
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="pollingDropDown">
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(1)">Minutes</a>
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(60)">Hours</a>
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(1440)">Days</a>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="trendRefreshButton"
                                         style="border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
                                         <span class="fa fa-refresh"></span>
                                     </button>
@@ -62,111 +83,88 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col">
-                            <label>Scope</label>
+                <div class="row">
+                    <div class="col-sm">
+                        <canvas id="chart" width="400" height="400">
+                        </canvas>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Trend</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="scope" min="1" id="scope" value="15">
-                                <div class="input-group-prepend">
-                                    <div class="dropdown dropup">
-                                        <button class="btn btn-primary dropdown-toggle" type="button"
-                                            id="scopeUnitsButton" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false"
-                                            style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                            Minutes
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="pollingDropDown">
-                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(1)">Minutes</a>
-                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(60)">Hours</a>
-                                            <a class="dropdown-item" href="#" onclick="setScopeUnit(1440)">Days</a>
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="text" class="form-control" disabled value="-" id="trend">
                             </div>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-sm">
-                            <canvas id="chart" width="400" height="400">
-                            </canvas>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Trend</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="trend">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Standard deviation</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="standarddeviation">
-                                </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Standard deviation</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="standarddeviation">
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Average</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="amean">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Median</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="median">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Minimum</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="min">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Maximum</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" disabled value="-" id="max">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-            </div>
-            <!--live tab end-->
-        </div>
-        <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
-            <!--about tab begin-->
-            <div class="card glass" style="margin-top: 10px;">
-                <img class="card-img-top" src="images/icon.svg"
-                    style="padding-left: 15px; padding-right: 15px; padding-top: 15px;">
-                <div class="card-body">
-                    <h5 class="card-title">Insight Trends for Homey v1.0.0</h5>
-                    <h3 class="card-title">© Philippe Wechsler 2021</h3>
-                    <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
-                        from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Average</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="amean">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Median</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="median">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Minimum</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="min">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Maximum</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="max">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <!--about tab end-->
         </div>
+        <!--live tab end-->
+    </div>
+    <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+        <!--about tab begin-->
+        <div class="card glass" style="margin-top: 10px;">
+            <img class="card-img-top" src="images/icon.svg"
+                style="padding-left: 15px; padding-right: 15px; padding-top: 15px;">
+            <div class="card-body">
+                <h5 class="card-title">Insight Trends for Homey v1.0.0</h5>
+                <h3 class="card-title">© Philippe Wechsler 2021</h3>
+                <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+                    from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+            </div>
+        </div>
+        <!--about tab end-->
+    </div>
     </div>
 
     <script type="text/javascript">
@@ -219,12 +217,13 @@
             const insightDropdownButton = document.getElementById('insightDropdownButton');
             const insightDropdownMenu = document.getElementById('insightDropdownMenu');
             const insightFilter = document.getElementById('insightFilter');
-            const insightRefreshButton = document.getElementById('insightRefreshButton');
+            const trendRefreshButton = document.getElementById('trendRefreshButton');
             const scope = document.getElementById('scope');
             const scopeUnitsButton = document.getElementById('scopeUnitsButton');
 
             insightFilter.addEventListener('input', (e) => { loadInsights() });
-            insightRefreshButton.addEventListener('click', (e) => { loadInsights() });
+            trendRefreshButton.addEventListener('click', (e) => { loadTrends() });
+            scope.addEventListener('input', (e) => { loadTrends() });
 
             let selectedInsight = null;
             let scopeUnit = 1;
@@ -257,19 +256,37 @@
                     if (error) {
                         // todo
                     } else {
-                        document.getElementById('trend').value = data.trend;
-                        document.getElementById('standarddeviation').value = data.standardDeviation;
-                        document.getElementById('min').value = data.min + ' ' + selectedInsight.units;
-                        document.getElementById('max').value = data.max + ' ' + selectedInsight.units;
-                        document.getElementById('amean').value = data.amean + ' ' + selectedInsight.units;
-                        document.getElementById('median').value = data.median + ' ' + selectedInsight.units;
+                        document.getElementById('trend').value = data.trend.toFixed(2);
+                        document.getElementById('standarddeviation').value = data.standardDeviation.toFixed(2);
+                        document.getElementById('min').value = data.min.toFixed(2) + ' ' + selectedInsight.units;
+                        document.getElementById('max').value = data.max.toFixed(2) + ' ' + selectedInsight.units;
+                        document.getElementById('amean').value = data.amean.toFixed(2) + ' ' + selectedInsight.units;
+                        document.getElementById('median').value = data.median.toFixed(2) + ' ' + selectedInsight.units;
+
+                        var gradient = document.getElementById('chart').getContext('2d').createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(1, convertHex(selectedInsight.color, 75));
+                        gradient.addColorStop(0, convertHex(selectedInsight.color, 0));
 
                         chart.data.datasets[0].data = data.entries.map(e => e);
                         chart.data.datasets[0].borderColor = selectedInsight.color;
-                        //chart.data.datasets[0].borderColor = selectedInsight.color;
+                        chart.data.datasets[0].backgroundColor = gradient;
                         chart.update();
                     }
                 })
+            }
+
+            function convertHex(hexCode, opacity) {
+                var hex = hexCode.replace('#', '');
+
+                if (hex.length === 3) {
+                    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+                }
+
+                var r = parseInt(hex.substring(0, 2), 16),
+                    g = parseInt(hex.substring(2, 4), 16),
+                    b = parseInt(hex.substring(4, 6), 16);
+
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
             }
 
             window.selectInsight = function (insight) {
@@ -290,7 +307,7 @@
                     case 1440: scopeUnitsButton.innerText = 'Days'; break;
                     default: scopeUnitsButton.innerText = 'Error'; break;
                 }
-                loadInsights();
+                loadTrends();
             }
 
 
@@ -318,7 +335,16 @@
                     scales: {
                         xAxes: [
                             {
-                                id: 'xAxis'
+                                id: 'xAxis',
+                                type: 'time',
+                                time: {
+                                    displayFormats: {
+                                        millisecond: 'h:mm:ss.SSS',
+                                        second: 'h:mm:ss',
+                                        minute: 'h:mm',
+                                        hour: 'h'
+                                    }
+                                }
                             }
                         ],
                         yAxes: [
