@@ -276,9 +276,12 @@ class InsightTrendsApp extends Homey.App {
       const logs = await api.insights.getLogs({});
       callback(null,
         logs
-          .filter(e => search == null || search == '' || (e.title && e.title.search(search) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.search(search) >= 0))
+          .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: e.color ? e.color : '#ff00b8' }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color : '#ff00b8' }
+            if(e.color){
+              result.color = e.color;
+            }
             if (e.uriObj.iconObj) {
               result.icon = e.uriObj.iconObj.url;
             }
@@ -317,7 +320,7 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.entries.push({ x: date, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date, downsizedx: date / minutes / 1000 / 60, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
 
@@ -333,17 +336,15 @@ class InsightTrendsApp extends Homey.App {
         result.median = stats.median() >= 0.5 ? true : false;
         result.size = result.entries.length;
       } else {
-        const trends = createTrend(result.entries, 'x', 'y');
-        Homey.app.log(trends.slope);
-        Homey.app.log(trends.slope * minutes);
-        Homey.app.log(trends.slope * minutes * 1000);
-        Homey.app.log(trends.slope * minutes * 1000 * 60);
+        const trends = createTrend(result.entries, 'downsizedx', 'y');
+        const trendCorrection = result.entries[0].t - result.entries[result.entries.length - 1].t;
+        const slope = trends.slope / trendCorrection;
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();
         result.median = stats.median();
         result.standardDeviation = stats.σ();
-        result.trend = trends.slope;
+        result.trend = slope;
         result.size = result.entries.length;
       }
       callback(null, result);
