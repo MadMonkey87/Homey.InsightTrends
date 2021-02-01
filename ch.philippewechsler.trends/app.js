@@ -278,9 +278,9 @@ class InsightTrendsApp extends Homey.App {
         logs
           .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color : '#ff00b8' }
-            if(e.color){
-              result.color = e.color;
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#ff00b8' }
+            if (e.uriObj.color) {
+              result.color = e.uriObj.color;
             }
             if (e.uriObj.iconObj) {
               result.icon = e.uriObj.iconObj.url;
@@ -312,6 +312,7 @@ class InsightTrendsApp extends Homey.App {
         entries: [],
         booleanBasedCapability: booleanBasedCapability
       };
+      const mintime = Date.parse(entries.values[entries.values.length - 1].t);
       for (let i = entries.values.length - 1; i >= 0; i--) {
         let entry = entries.values[i];
         const date = Date.parse(entry.t);
@@ -320,7 +321,7 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.entries.push({ x: date, downsizedx: date / minutes / 1000 / 60, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date, downsizedx: (date - mintime) / minutes / 1000 / 60, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
 
@@ -337,8 +338,18 @@ class InsightTrendsApp extends Homey.App {
         result.size = result.entries.length;
       } else {
         const trends = createTrend(result.entries, 'downsizedx', 'y');
-        const trendCorrection = result.entries[0].t - result.entries[result.entries.length - 1].t;
+        const trendCorrection = result.entries[0].downsizedx - result.entries[result.entries.length - 1].downsizedx;
         const slope = trends.slope / trendCorrection;
+
+        Homey.app.log('results for: ', minutes)
+        Homey.app.log(result.entries[0].downsizedx, result.entries[0].x)
+        Homey.app.log(result.entries[result.entries.length - 1].downsizedx, result.entries[result.entries.length - 1].x)
+        Homey.app.log(trendCorrection, slope, trends.slope)
+
+        Homey.app.log('alternative 1:', createTrend(result.entries, 'x', 'y').slope / (result.entries[0].x - result.entries[result.entries.length - 1].x));
+        Homey.app.log('alternative 2:', createTrend(result.entries, 'x', 'y').slope * (result.entries[0].x - result.entries[result.entries.length - 1].x));
+        Homey.app.log('alternative 3:', createTrend(result.entries, 'downsizedx', 'y').slope * (result.entries[0].downsizedx - result.entries[result.entries.length - 1].downsizedx));
+
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();

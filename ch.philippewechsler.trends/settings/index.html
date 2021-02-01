@@ -132,6 +132,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Sample size</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="size">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -251,6 +259,7 @@
                         document.getElementById('max').value = data.max.toFixed(2) + ' ' + selectedInsight.units;
                         document.getElementById('amean').value = data.amean.toFixed(2) + ' ' + selectedInsight.units;
                         document.getElementById('median').value = data.median.toFixed(2) + ' ' + selectedInsight.units;
+                        document.getElementById('size').value = data.size;
 
                         var gradient = document.getElementById('chart').getContext('2d').createLinearGradient(0, 0, 0, 400);
                         gradient.addColorStop(1, convertHex(selectedInsight.color, 65));
@@ -329,7 +338,7 @@
                                         millisecond: 'H:mm:ss.SSS',
                                         second: 'H:mm:ss',
                                         minute: 'H:mm',
-                                        hour: 'H'
+                                        hour: 'H:mm'
                                     }
                                 }
                             }
