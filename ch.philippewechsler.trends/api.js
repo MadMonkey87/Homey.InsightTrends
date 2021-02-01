@@ -20,7 +20,7 @@ module.exports = [
         path: '/trends',
         public: false,
         fn: async function (args, callback) {
-            await Homey.app.getTrends(args.query.id, args.query.uid, args.query.minutes, (err, result) => {
+            await Homey.app.getTrends(args.query.id, args.query.uid, args.query.minutes, args.query.scopeUnit, (err, result) => {
                 if (err) {
                     callback(err, null)
                 } else {

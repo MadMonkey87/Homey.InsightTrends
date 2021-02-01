@@ -298,7 +298,7 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getTrends(id, uid, minutes, callback) {
+  async getTrends(id, uid, minutes, scopeUnit, callback) {
     try {
       const resolution = this.getResolution(minutes);
 
@@ -310,9 +310,9 @@ class InsightTrendsApp extends Homey.App {
 
       let result = {
         entries: [],
-        booleanBasedCapability: booleanBasedCapability
+        booleanBasedCapability: booleanBasedCapability,
+        trendline: []
       };
-      const mintime = Date.parse(entries.values[entries.values.length - 1].t);
       for (let i = entries.values.length - 1; i >= 0; i--) {
         let entry = entries.values[i];
         const date = Date.parse(entry.t);
@@ -321,7 +321,7 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.entries.push({ x: date, downsizedx: (date - mintime) / minutes / 1000 / 60, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
 
@@ -337,25 +337,16 @@ class InsightTrendsApp extends Homey.App {
         result.median = stats.median() >= 0.5 ? true : false;
         result.size = result.entries.length;
       } else {
-        const trends = createTrend(result.entries, 'downsizedx', 'y');
-        const trendCorrection = result.entries[0].downsizedx - result.entries[result.entries.length - 1].downsizedx;
-        const slope = trends.slope / trendCorrection;
-
-        Homey.app.log('results for: ', minutes)
-        Homey.app.log(result.entries[0].downsizedx, result.entries[0].x)
-        Homey.app.log(result.entries[result.entries.length - 1].downsizedx, result.entries[result.entries.length - 1].x)
-        Homey.app.log(trendCorrection, slope, trends.slope)
-
-        Homey.app.log('alternative 1:', createTrend(result.entries, 'x', 'y').slope / (result.entries[0].x - result.entries[result.entries.length - 1].x));
-        Homey.app.log('alternative 2:', createTrend(result.entries, 'x', 'y').slope * (result.entries[0].x - result.entries[result.entries.length - 1].x));
-        Homey.app.log('alternative 3:', createTrend(result.entries, 'downsizedx', 'y').slope * (result.entries[0].downsizedx - result.entries[result.entries.length - 1].downsizedx));
-
+        const trends = createTrend(result.entries, 'x', 'y');
+        const distance = result.entries[0].x - result.entries[result.entries.length - 1].x;
+        result.trend = trends.slope * distance / (minutes / scopeUnit);
+        result.trendline.push({ x: result.entries[0].x, y: trends.calcY(result.entries[0].x) });
+        result.trendline.push({ x: result.entries[result.entries.length - 1].x, y: trends.calcY(result.entries[result.entries.length - 1].x) });
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();
         result.median = stats.median();
         result.standardDeviation = stats.σ();
-        result.trend = slope;
         result.size = result.entries.length;
       }
       callback(null, result);
