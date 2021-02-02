@@ -300,19 +300,36 @@ class InsightTrendsApp extends Homey.App {
 
   async getTrends(id, uid, minutes, scopeUnit, callback) {
     try {
+      let result = {
+        entries: [],
+        booleanBasedCapability: false,
+        trendline: [],
+        performance: {
+          total: Date.now(),
+          calculation: 0,
+          fetchInsight: 0,
+          fetchLogEntries: 0
+        }
+      };
+
       const resolution = this.getResolution(minutes);
 
       const api = await Homey.app.getApi();
       const minDate = Date.now() - minutes * 60000;
-      const entry = await api.insights.getLog({ uri: uid, id: id });
-      const booleanBasedCapability = entry.type == 'boolean';
-      const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
 
-      let result = {
-        entries: [],
-        booleanBasedCapability: booleanBasedCapability,
-        trendline: []
-      };
+      result.performance.fetchInsight = Date.now();
+      const entry = await api.insights.getLog({ uri: uid, id: id });
+      result.performance.fetchInsight = Date.now() - result.performance.fetchInsight;
+      result.lastValue = entry.lastValue;
+
+      result.booleanBasedCapability = entry.type == 'boolean';
+
+      result.performance.fetchLogEntries = Date.now();
+      const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
+      result.performance.fetchLogEntries = Date.now() - result.performance.fetchLogEntries;
+
+      result.performance.calculation = Date.now();
+
       for (let i = entries.values.length - 1; i >= 0; i--) {
         let entry = entries.values[i];
         const date = Date.parse(entry.t);
@@ -321,14 +338,14 @@ class InsightTrendsApp extends Homey.App {
           break;
         }
         if (entry.v != null) {
-          result.entries.push({ x: date, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+          result.entries.push({ x: date, y: result.booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
         }
       }
 
       const stats = new Stats().push(result.entries.map(e => e.y));
       const range = stats.range();
 
-      if (booleanBasedCapability) {
+      if (result.booleanBasedCapability) {
         result.hasFalseValue = result.entries.some(e => e.y == false);
         result.hasTrueValue = result.entries.some(e => e.y == true);
         result.min = range[0] >= 0.5 ? true : false;
@@ -349,6 +366,8 @@ class InsightTrendsApp extends Homey.App {
         result.standardDeviation = stats.σ();
         result.size = result.entries.length;
       }
+      result.performance.calculation = Date.now() - result.performance.calculation;
+      result.performance.total = Date.now() - result.performance.total;
       callback(null, result);
     } catch (error) {
       Homey.app.log('error fetching insights', error);

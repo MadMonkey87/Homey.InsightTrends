@@ -2,7 +2,7 @@
 
 <head>
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-    <!--<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.4/homey-settings-mock.js'></script>-->
+    <script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.4/homey-settings-mock.js'></script>
 
     <script src="js/jquery-3.5.1.slim.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -33,6 +33,8 @@
             <!--live tab begin-->
             <div class="card glass" style="margin-top: 10px;">
                 <div class="card-body">
+
+                    <h5 class="card-title">Query</h5>
 
                     <div class="row">
                         <div class="col">
@@ -68,7 +70,7 @@
                                 <div class="dropdown dropup" style="height: 38px !important;">
                                     <button class="btn btn-primary dropdown-toggle" type="button" id="scopeUnitsButton"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                        style="border-radius: 0;">
+                                        style="border-radius: 0; height: 100% !important; margin-right: 0">
                                         Minutes
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="pollingDropDown">
@@ -78,19 +80,22 @@
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-secondary" id="trendRefreshButton"
-                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; height: 38px !important;">
                                     <span class="fa fa-refresh"></span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
+                    <h5 class="card-title">Chart</h5>
                     <div class="row" style="margin-top: 15px;">
                         <div class="col-sm">
                             <canvas id="chart" width="400" height="400">
                             </canvas>
                         </div>
                     </div>
+
+                    <h5 class="card-title">Statistics</h5>
 
                     <div class="row">
                         <div class="col-6">
@@ -141,7 +146,44 @@
                                 <input type="text" class="form-control" disabled value="-" id="size">
                             </div>
                         </div>
+                        <div class="col-6">
+                            <label>Last value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="lastValue">
+                            </div>
+                        </div>
                     </div>
+
+                    <h5 class="card-title">Performance</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Total</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfTotal">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Calculations</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfCalc">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Fetch Insights</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfFetchInsights">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Fetch Data</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfFetchData">
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -218,7 +260,7 @@
             const scope = document.getElementById('scope');
             const scopeUnitsButton = document.getElementById('scopeUnitsButton');
 
-            insightFilter.addEventListener('input', (e) => { loadInsights() });
+            insightFilter.addEventListener('blur', (e) => { loadInsights() });
             trendRefreshButton.addEventListener('click', (e) => { loadTrends() });
             scope.addEventListener('blur', (e) => { loadTrends() });
 
@@ -236,7 +278,7 @@
                         let html = '';
                         for (var i = 0; i < data.length; i++) {
                             html += `
-                                    <a style="font-style:bold;" class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}',color:'${data[i].color}',booleanBasedCapability:${data[i].booleanBasedCapability}})">
+                                    <a style="font-style:bold; overflow: auto;" class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}',color:'${data[i].color}',booleanBasedCapability:${data[i].booleanBasedCapability}})">
                                         ${data[i].name}
                                         <p style="font-style:italic; font-size:11">${data[i].description}</p>
                                     </a>
@@ -263,6 +305,12 @@
                         document.getElementById('amean').value = data.amean.toFixed(2) + ' ' + selectedInsight.units;
                         document.getElementById('median').value = data.median.toFixed(2) + ' ' + selectedInsight.units;
                         document.getElementById('size').value = data.size;
+                        document.getElementById('lastValue').value = data.lastValue.toFixed(2) + ' ' + selectedInsight.units;
+
+                        document.getElementById('perfTotal').value = data.performance.total + ' MS';
+                        document.getElementById('perfCalc').value = data.performance.calculation + ' MS';
+                        document.getElementById('perfFetchInsights').value = data.performance.fetchInsight + ' MS';
+                        document.getElementById('perfFetchData').value = data.performance.fetchLogEntries + ' MS';
 
                         var gradient = document.getElementById('chart').getContext('2d').createLinearGradient(0, 0, 0, document.getElementById('chart').clientHeight);
                         gradient.addColorStop(1, convertHex(selectedInsight.color, 0));
@@ -311,7 +359,6 @@
                 }
                 loadTrends();
             }
-
 
             var chartOptions = {
                 type: 'scatter',
