@@ -1,5 +1,8 @@
 {
   "1.0.0": {
     "en": "initial release"
+  },
+  "2.0.0": {
+    "en": "UI with live preview and statistics, return current value in the calculations, support for boolean based insights"
   }
 }

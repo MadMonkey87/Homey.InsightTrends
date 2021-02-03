@@ -30,8 +30,24 @@
     </nav>
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab">
+
             <!--live tab begin-->
             <div class="card glass" style="margin-top: 10px;">
+
+                <div class="loading" id="loading">
+                    <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube1"></div>
+                        <div class="sk-cube sk-cube2"></div>
+                        <div class="sk-cube sk-cube3"></div>
+                        <div class="sk-cube sk-cube4"></div>
+                        <div class="sk-cube sk-cube5"></div>
+                        <div class="sk-cube sk-cube6"></div>
+                        <div class="sk-cube sk-cube7"></div>
+                        <div class="sk-cube sk-cube8"></div>
+                        <div class="sk-cube sk-cube9"></div>
+                    </div>
+                </div>
+
                 <div class="card-body">
 
                     <h5 class="card-title">Query</h5>
@@ -87,7 +103,7 @@
                         </div>
                     </div>
 
-                    <h5 class="card-title">Chart</h5>
+                    <h5 class="card-title" style="margin-top: 20px;">Chart</h5>
                     <div class="row" style="margin-top: 15px;">
                         <div class="col-sm">
                             <canvas id="chart" width="400" height="400">
@@ -95,7 +111,7 @@
                         </div>
                     </div>
 
-                    <h5 class="card-title">Statistics</h5>
+                    <h5 class="card-title" style="margin-top: 20px;">Statistics</h5>
 
                     <div class="row">
                         <div class="col-6">
@@ -154,7 +170,7 @@
                         </div>
                     </div>
 
-                    <h5 class="card-title">Performance</h5>
+                    <h5 class="card-title" style="margin-top: 20px;">Performance</h5>
                     <div class="row">
                         <div class="col-6">
                             <label>Total</label>
@@ -193,12 +209,24 @@
             <!--about tab begin-->
             <div class="card glass" style="margin-top: 10px;">
                 <img class="card-img-top" src="images/icon.svg"
-                    style="padding-left: 15px; padding-right: 15px; padding-top: 15px;">
+                    style="padding-left: 20%; padding-right: 20%; padding-top: 35px;padding-bottom: 15px;">
+                <div class="sk-cube-grid" style="margin:10% auto">
+                    <div class="sk-cube sk-cube1"></div>
+                    <div class="sk-cube sk-cube2"></div>
+                    <div class="sk-cube sk-cube3"></div>
+                    <div class="sk-cube sk-cube4"></div>
+                    <div class="sk-cube sk-cube5"></div>
+                    <div class="sk-cube sk-cube6"></div>
+                    <div class="sk-cube sk-cube7"></div>
+                    <div class="sk-cube sk-cube8"></div>
+                    <div class="sk-cube sk-cube9"></div>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Insight Trends for Homey v1.0.0</h5>
+                    <h5 class="card-title">Insight Trends for Homey v2.0.0</h5>
                     <h3 class="card-title">© Philippe Wechsler 2021</h3>
                     <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
                         from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
                 </div>
             </div>
             <!--about tab end-->
@@ -210,7 +238,7 @@
         function onHomeyReady(Homey) {
 
             if (Homey.isMock) {
-                //Homey.alert('Warning: Homey is mocked only!!!')
+                Homey.alert('Warning: Homey is mocked only!!!')
                 let store = {};
                 Homey.addRoutes([
                     {
@@ -246,7 +274,14 @@
                                 median: 15,
                                 standardDeviation: 5,
                                 trend: 0.45,
-                                size: 10
+                                size: 10,
+                                lastValue: Math.random() * 100,
+                                performance: {
+                                    total: 0,
+                                    calculation: 0,
+                                    fetchInsight: 0,
+                                    fetchLogEntries: 0
+                                }
                             })
                         }
                     }
@@ -259,6 +294,7 @@
             const trendRefreshButton = document.getElementById('trendRefreshButton');
             const scope = document.getElementById('scope');
             const scopeUnitsButton = document.getElementById('scopeUnitsButton');
+            const loading = document.getElementById('loading');
 
             insightFilter.addEventListener('blur', (e) => { loadInsights() });
             trendRefreshButton.addEventListener('click', (e) => { loadTrends() });
@@ -268,6 +304,7 @@
             let scopeUnit = 1;
 
             function loadInsights() {
+                loading.style.display = 'initial';
                 insightDropdownButton.innerText = 'loading';
                 insightDropdownButton.disabled = true;
                 Homey.api('GET', '/insights?search=' + insightFilter.value, {}, function (error, data) {
@@ -287,6 +324,7 @@
                         insightDropdownMenu.innerHTML = html;
                     }
                     window.selectInsight(null);
+                    loading.style.display = 'none';
                 })
             }
 
@@ -294,6 +332,7 @@
                 if (selectedInsight == null) {
                     return;
                 }
+                loading.style.display = 'initial';
                 Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit, {}, function (error, data) {
                     if (error) {
                         Homey.alert(error);
@@ -322,6 +361,7 @@
                         chart.data.datasets[0].data = data.trendline;
                         chart.update();
                     }
+                    loading.style.display = 'none';
                 })
             }
 
@@ -419,6 +459,7 @@
             Homey.ready()
 
             loadInsights();
+
         }
 
     </script>
