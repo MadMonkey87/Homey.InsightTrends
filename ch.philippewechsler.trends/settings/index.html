@@ -2,7 +2,7 @@
 
 <head>
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-    <script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.4/homey-settings-mock.js'></script>
+    <!--<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.4/homey-settings-mock.js'></script>-->
 
     <script src="js/jquery-3.5.1.slim.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -354,26 +354,26 @@
                         Homey.alert(error);
                     } else {
                         if (selectedInsight.booleanBasedCapability) {
-                            document.getElementById('trend').value = data.trend ? data.trend.toFixed(2) : '-';
-                            document.getElementById('standarddeviation').value = data.standardDeviation ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) : '-';
                             document.getElementById('min').value = '-';
                             document.getElementById('max').value = '-';
                             document.getElementById('amean').value = data.amean;
                             document.getElementById('median').value = data.median;
-                            document.getElementById('size').value = data.size ? data.size : '-';
+                            document.getElementById('size').value = data.size != null ? data.size : '-';
                             document.getElementById('lastValue').value = data.lastValue;
                             document.getElementById('hasFalseValue').value = data.hasFalseValue;
                             document.getElementById('hasTrueValue').value = data.hasTrueValue;
                         }
                         else {
-                            document.getElementById('trend').value = data.trend ? data.trend.toFixed(2) : '-';
-                            document.getElementById('standarddeviation').value = data.standardDeviation ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
-                            document.getElementById('min').value = data.min ? data.min.toFixed(2) + ' ' + selectedInsight.units : '-';
-                            document.getElementById('max').value = data.max ? data.max.toFixed(2) + ' ' + selectedInsight.units : '-';
-                            document.getElementById('amean').value = data.amean ? data.amean.toFixed(2) + ' ' + selectedInsight.units : '-';
-                            document.getElementById('median').value = data.median ? data.median.toFixed(2) + ' ' + selectedInsight.units : '-';
-                            document.getElementById('size').value = data.size ? data.size : '-';
-                            document.getElementById('lastValue').value = data.lastValue ? data.lastValue.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('min').value = data.min != null ? data.min.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('max').value = data.max != null ? data.max.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('amean').value = data.amean != null ? data.amean.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('median').value = data.median != null ? data.median.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('size').value = data.size != null ? data.size : '-';
+                            document.getElementById('lastValue').value = data.lastValue != null ? data.lastValue.toFixed(2) + ' ' + selectedInsight.units : '-';
                             document.getElementById('hasFalseValue').value = '-';
                             document.getElementById('hasTrueValue').value = '-';
                         }
