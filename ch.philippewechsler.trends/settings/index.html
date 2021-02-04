@@ -155,6 +155,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-6">
                             <label>Sample size</label>
@@ -166,6 +167,21 @@
                             <label>Last value</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" disabled value="-" id="lastValue">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Has true value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="hasTrueValue">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Has false value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="hasFalseValue">
                             </div>
                         </div>
                     </div>
@@ -337,15 +353,30 @@
                     if (error) {
                         Homey.alert(error);
                     } else {
-                        document.getElementById('trend').value = data.trend.toFixed(2);
-                        document.getElementById('standarddeviation').value = data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units;
-                        document.getElementById('min').value = data.min.toFixed(2) + ' ' + selectedInsight.units;
-                        document.getElementById('max').value = data.max.toFixed(2) + ' ' + selectedInsight.units;
-                        document.getElementById('amean').value = data.amean.toFixed(2) + ' ' + selectedInsight.units;
-                        document.getElementById('median').value = data.median.toFixed(2) + ' ' + selectedInsight.units;
-                        document.getElementById('size').value = data.size;
-                        document.getElementById('lastValue').value = data.lastValue.toFixed(2) + ' ' + selectedInsight.units;
-
+                        if (selectedInsight.booleanBasedCapability) {
+                            document.getElementById('trend').value = data.trend ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('min').value = '-';
+                            document.getElementById('max').value = '-';
+                            document.getElementById('amean').value = data.amean;
+                            document.getElementById('median').value = data.median;
+                            document.getElementById('size').value = data.size ? data.size : '-';
+                            document.getElementById('lastValue').value = data.lastValue;
+                            document.getElementById('hasFalseValue').value = data.hasFalseValue;
+                            document.getElementById('hasTrueValue').value = data.hasTrueValue;
+                        }
+                        else {
+                            document.getElementById('trend').value = data.trend ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('min').value = data.min ? data.min.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('max').value = data.max ? data.max.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('amean').value = data.amean ? data.amean.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('median').value = data.median ? data.median.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('size').value = data.size ? data.size : '-';
+                            document.getElementById('lastValue').value = data.lastValue ? data.lastValue.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('hasFalseValue').value = '-';
+                            document.getElementById('hasTrueValue').value = '-';
+                        }
                         document.getElementById('perfTotal').value = data.performance.total + ' MS';
                         document.getElementById('perfCalc').value = data.performance.calculation + ' MS';
                         document.getElementById('perfFetchInsights').value = data.performance.fetchInsight + ' MS';
@@ -356,6 +387,7 @@
                         gradient.addColorStop(0.25, convertHex(selectedInsight.color, 85));
 
                         chart.data.datasets[1].data = data.entries;
+                        chart.data.datasets[1].steppedLine = selectedInsight.booleanBasedCapability;
                         chart.data.datasets[1].borderColor = selectedInsight.color;
                         chart.data.datasets[1].backgroundColor = gradient;
                         chart.data.datasets[0].data = data.trendline;
@@ -446,7 +478,7 @@
                             {
                                 id: 'yAxis',
                                 ticks: {
-                                    beginAtZero: true
+                                    beginAtZero: false
                                 }
                             }
                         ]

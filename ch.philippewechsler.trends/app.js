@@ -208,7 +208,12 @@ class InsightTrendsApp extends Homey.App {
     let start = Date.now();
     const api = await Homey.app.getApi();
     const minDate = Date.now() - minutes * 60000;
-    const entries = await api.insights.getLogEntries({ uri: args.insight.uri, id: args.insight.id, resolution: resolution });
+
+    let request = { uri: args.insight.uri, id: args.insight.id };
+    if (!args.booleanBasedCapability) {
+      request.resolution = resolution;
+    }
+    const entries = await api.insights.getLogEntries(request);
     this.log('fetching entries completed', (Date.now() - start) + ' MS');
 
     const booleanBasedCapability = args.insight.type == 'boolean';
@@ -252,7 +257,7 @@ class InsightTrendsApp extends Homey.App {
           logs
             .filter(e => !filter.type || e.type == filter.type)
             .map(e => {
-              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type }
+              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, booleanBasedCapability: e.type == 'boolean' }
               if (e.uriObj.iconObj) {
                 result.icon = e.uriObj.iconObj.url;
               }
@@ -324,8 +329,12 @@ class InsightTrendsApp extends Homey.App {
 
       result.booleanBasedCapability = entry.type == 'boolean';
 
+      let request = { uri: uid, id: id };
+      if (!result.booleanBasedCapability) {
+        request.resolution = resolution;
+      }
       result.performance.fetchLogEntries = Date.now();
-      const entries = await api.insights.getLogEntries({ uri: uid, id: id, resolution: resolution });
+      const entries = await api.insights.getLogEntries(request);
       result.performance.fetchLogEntries = Date.now() - result.performance.fetchLogEntries;
 
       result.performance.calculation = Date.now();
@@ -345,26 +354,32 @@ class InsightTrendsApp extends Homey.App {
       const stats = new Stats().push(result.entries.map(e => e.y));
       const range = stats.range();
 
-      if (result.booleanBasedCapability) {
-        result.hasFalseValue = result.entries.some(e => e.y == false);
-        result.hasTrueValue = result.entries.some(e => e.y == true);
-        result.min = range[0] >= 0.5 ? true : false;
-        result.max = range[1] >= 0.5 ? true : false;
-        result.amean = stats.amean() >= 0.5 ? true : false;
-        result.median = stats.median() >= 0.5 ? true : false;
-        result.size = result.entries.length;
-      } else {
+      if (result.entries.length > 2) {
         const trends = createTrend(result.entries, 'x', 'y');
         const distance = result.entries[0].x - result.entries[result.entries.length - 1].x;
         result.trend = trends.slope * distance / (minutes / scopeUnit);
         result.trendline.push({ x: result.entries[0].x, y: trends.calcY(result.entries[0].x) });
         result.trendline.push({ x: result.entries[result.entries.length - 1].x, y: trends.calcY(result.entries[result.entries.length - 1].x) });
+      } else {
+        result.trend = 0;
+      }
+
+      if (result.booleanBasedCapability) {
+        result.hasFalseValue = result.entries.some(e => e.y == false);
+        result.hasTrueValue = result.entries.some(e => e.y == true);
+        result.amean = stats.amean() >= 0.5 ? true : false;
+        result.median = stats.median() >= 0.5 ? true : false;
+        result.standardDeviation = stats.σ();
+        result.size = result.entries.length;
+      } else {
         result.min = range[0];
         result.max = range[1];
         result.amean = stats.amean();
         result.median = stats.median();
         result.standardDeviation = stats.σ();
         result.size = result.entries.length;
+        result.hasFalseValue = false;
+        result.hasTrueValue = false;
       }
       result.performance.calculation = Date.now() - result.performance.calculation;
       result.performance.total = Date.now() - result.performance.total;
