@@ -356,8 +356,8 @@
                         if (selectedInsight.booleanBasedCapability) {
                             document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
                             document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) : '-';
-                            document.getElementById('min').value = '-';
-                            document.getElementById('max').value = '-';
+                            document.getElementById('min').value = data.min != null ? data.min.toFixed(2) : '-';
+                            document.getElementById('max').value = data.max != null ? data.max.toFixed(2) : '-';
                             document.getElementById('amean').value = data.amean;
                             document.getElementById('median').value = data.median;
                             document.getElementById('size').value = data.size != null ? data.size : '-';
