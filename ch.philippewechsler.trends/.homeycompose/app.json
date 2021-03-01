@@ -1,8 +1,8 @@
 {
   "id": "ch.philippewechsler.trends",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "compatibility": ">=4.0.0",
-  "brandColor": "#ff00b8",
+  "brandColor": "#baa48d",
   "sdk": 2,
   "name": {
     "en": "Insight Trends"

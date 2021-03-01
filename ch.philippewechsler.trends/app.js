@@ -129,12 +129,12 @@ class InsightTrendsApp extends Homey.App {
 
   compareNumberValue(value, args) {
     switch (args.operator) {
-      case 'smaller': return value > args.value;
-      case 'smaller_equal': return value >= args.value;
+      case 'smaller': return value < args.value;
+      case 'smaller_equal': return value <= args.value;
       case 'equal': return value == args.value;
       case 'not_equal': return value != args.value;
-      case 'greater_equal': return value <= args.value;
-      case 'greater': return value <= args.value;
+      case 'greater_equal': return value >= args.value;
+      case 'greater': return value >= args.value;
       default: false;
     }
   }
@@ -283,7 +283,7 @@ class InsightTrendsApp extends Homey.App {
         logs
           .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#ff00b8' }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#baa48d' }
             if (e.uriObj.color) {
               result.color = e.uriObj.color;
             }

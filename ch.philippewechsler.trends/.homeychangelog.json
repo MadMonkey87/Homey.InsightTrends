@@ -4,5 +4,8 @@
   },
   "2.0.0": {
     "en": "UI with live preview and statistics, return current value in the calculations, support for boolean based insights"
+  },
+  "2.1.0": {
+    "en": "Some small fixes"
   }
 }
