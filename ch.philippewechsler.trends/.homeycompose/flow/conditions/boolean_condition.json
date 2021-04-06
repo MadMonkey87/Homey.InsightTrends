@@ -1,9 +1,9 @@
 {
     "title": {
-        "en": "Analyse Insights (number)"
+        "en": "Analyse Insights (boolean)"
     },
-    "titleFormatted": {
-        "en": "Check if [[characteristic]] is [[operator]] [[value]] for the past [[scope]] [[scopeUnit]] on [[insight]]"
+    "titletitleFormatted": {
+        "en": "Check if [[characteristic]] is [[operator]] for the past [[scope]] [[scopeUnit]] on [[insight]]"
     },
     "args": [
         {
@@ -60,15 +60,15 @@
             },
             "values": [
                 {
-                    "id": "min",
+                    "id": "hasTrueValue",
                     "label": {
-                        "en": "Minimum"
+                        "en": "Any value is 'true'"
                     }
                 },
                 {
-                    "id": "max",
+                    "id": "hasFalseValue",
                     "label": {
-                        "en": "Maximum"
+                        "en": "Any value is 'false'"
                     }
                 },
                 {
@@ -82,18 +82,6 @@
                     "label": {
                         "en": "Median"
                     }
-                },
-                {
-                    "id": "trend",
-                    "label": {
-                        "en": "Trend"
-                    }
-                },
-                {
-                    "id": "standardDeviation",
-                    "label": {
-                        "en": "Standard Deviation"
-                    }
                 }
             ]
         },
@@ -105,49 +93,18 @@
             },
             "values": [
                 {
-                    "id": "smaller",
+                    "id": "true",
                     "label": {
-                        "en": "Smaller than"
+                        "en": "True"
                     }
                 },
                 {
-                    "id": "smaller_equal",
+                    "id": "false",
                     "label": {
-                        "en": "Smaler than or equals to"
-                    }
-                },
-                {
-                    "id": "equal",
-                    "label": {
-                        "en": "Equal to"
-                    }
-                },
-                {
-                    "id": "not_equal",
-                    "label": {
-                        "en": "Not equal to"
-                    }
-                },
-                {
-                    "id": "greater_equal",
-                    "label": {
-                        "en": "Greater or equal than"
-                    }
-                },
-                {
-                    "id": "greater",
-                    "label": {
-                        "en": "Greater than"
+                        "en": "False"
                     }
                 }
             ]
-        },
-        {
-            "type": "number",
-            "name": "value",
-            "title": {
-                "en": "Value"
-            }
         }
     ]
 }

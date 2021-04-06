@@ -9,6 +9,10 @@ class InsightTrendsApp extends Homey.App {
   async onInit() {
     this.log('InsightTrendsApp has been initialized');
 
+    const errorTrigger = new Homey.FlowCardTrigger('error')
+    errorTrigger
+      .register();
+
     const numberCalculatedTrigger = new Homey.FlowCardTrigger('number_trend_calculated')
     numberCalculatedTrigger
       .register()
@@ -18,7 +22,18 @@ class InsightTrendsApp extends Homey.App {
         })
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
+
+    const booleanCalculatedTrigger = new Homey.FlowCardTrigger('boolean_trend_calculated')
+    booleanCalculatedTrigger
+      .register()
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          resolve(args.insight.uri == state.uri && args.insight.id == state.id);
+        })
+      })
+      .getArgument('insight')
+      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
     const numberCondition = new Homey.FlowCardCondition('number_condition')
       .register()
@@ -26,16 +41,35 @@ class InsightTrendsApp extends Homey.App {
         return new Promise(async (resolve, reject) => {
           try {
             const logs = await this.getLogEntries(args);
-            const value = this.getValue(logs, args);
-            resolve(this.compareValue(value, args));
+            const value = this.getNumberValue(logs, args);
+            resolve(this.compareNumberValue(value, args));
           } catch (e) {
             this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
             reject(e);
           }
         });
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
+
+    const booleanCondition = new Homey.FlowCardCondition('boolean_condition')
+      .register()
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const logs = await this.getLogEntries(args);
+            const value = this.getBooleanValue(logs, args);
+            resolve(this.compareBooleanValue(value, args));
+          } catch (e) {
+            this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
+            reject(e);
+          }
+        });
+      })
+      .getArgument('insight')
+      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
     const calculateTrendAction = new Homey.FlowCardAction('calculate_trend')
       .register()
@@ -44,33 +78,53 @@ class InsightTrendsApp extends Homey.App {
           try {
             const logs = await this.getLogEntries(args);
 
+            const booleanBasedCapability = args.insight.type == 'boolean';
+            const state = { uri: args.insight.uri, id: args.insight.id };
             let start = Date.now();
-            const trends = createTrend(logs, 'x', 'y');
+
             const stats = new Stats().push(logs.map(e => e.y));
             const range = stats.range();
-            const tokens = {
-              min: range[0],
-              max: range[1],
-              amean: stats.amean(),
-              median: stats.median(),
-              standardDeviation: stats.σ(),
-              trend: trends.slope,
-              size: logs.length
-            };
-            this.log('calculation completed', (Date.now() - start) + ' MS', tokens);
 
-            const state = { uri: args.insight.uri, id: args.insight.id };
-            numberCalculatedTrigger.trigger(tokens, state);
+            if (booleanBasedCapability) {
+              const booleanTokens = {
+                hasFalseValue: logs.some(e => e.y == false),
+                hasTrueValue: logs.some(e => e.y == true),
+                min: range[0] >= 0.5 ? true : false,
+                max: range[1] >= 0.5 ? true : false,
+                amean: stats.amean() >= 0.5 ? true : false,
+                median: stats.median() >= 0.5 ? true : false,
+                size: logs.length
+              };
+              this.log('boolean calculation completed', (Date.now() - start) + ' MS', booleanTokens);
+
+              booleanCalculatedTrigger.trigger(numberTokens, state);
+            } else {
+              const trends = createTrend(logs, 'x', 'y');
+
+              const numberTokens = {
+                min: range[0],
+                max: range[1],
+                amean: stats.amean(),
+                median: stats.median(),
+                standardDeviation: stats.σ(),
+                trend: trends.slope,
+                size: logs.length
+              };
+              this.log('number calculation completed', (Date.now() - start) + ' MS', numberTokens);
+
+              numberCalculatedTrigger.trigger(numberTokens, state);
+            }
 
             resolve();
           } catch (e) {
             this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
             reject(e);
           }
         });
       })
       .getArgument('insight')
-      .registerAutocompleteListener(this.insightAutocompleteListener);
+      .registerAutocompleteListener(this.allInsightAutocompleteListener);
   }
 
   getApi() {
@@ -80,19 +134,27 @@ class InsightTrendsApp extends Homey.App {
     return this.api;
   }
 
-  compareValue(value, args) {
+  compareNumberValue(value, args) {
     switch (args.operator) {
-      case 'smaller': return value > args.value;
-      case 'smaller_equal': return value >= args.value;
+      case 'smaller': return value < args.value;
+      case 'smaller_equal': return value <= args.value;
       case 'equal': return value == args.value;
       case 'not_equal': return value != args.value;
-      case 'greater_equal': return value <= args.value;
-      case 'greater': return value <= args.value;
+      case 'greater_equal': return value >= args.value;
+      case 'greater': return value >= args.value;
       default: false;
     }
   }
 
-  getValue(logs, args) {
+  compareBooleanValue(value, args) {
+    switch (args.operator) {
+      case 'true': return value == true;
+      case 'false': return value == false;
+      default: false;
+    }
+  }
+
+  getNumberValue(logs, args) {
     if (args.characteristic == 'trend') {
       const trends = createTrend(logs, 'x', 'y');
       return trends.slope;
@@ -109,9 +171,18 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getLogEntries(args) {
+  getBooleanValue(logs, args) {
+    const stats = new Stats().push(logs.map(e => e.y));
+    switch (args.characteristic) {
+      case 'hasTrueValue': return logs.some(e => e.y == true);
+      case 'hasFalseValue': return logs.some(e => e.y == false);
+      case 'average': return stats.amean() >= 0.5 ? true : false;
+      case 'median': return stats.median() >= 0.5 ? true : false;
+      default: return null;
+    }
+  }
 
-    const minutes = args.scope * parseInt(args.scopeUnit);
+  getResolution(minutes) {
     let resolution = 'lastHour';
     if (minutes <= 60) {
       resolution = 'lastHour';
@@ -134,15 +205,25 @@ class InsightTrendsApp extends Homey.App {
     } else {
       resolution = 'lastYear';
     }
+    return resolution;
+  }
 
-    Homey.app.log('minutes', minutes);
-    Homey.app.log('resolution', resolution);
+  async getLogEntries(args) {
+    const minutes = args.scope * parseInt(args.scopeUnit);
+    let resolution = this.getResolution(minutes);
 
     let start = Date.now();
     const api = await Homey.app.getApi();
     const minDate = Date.now() - minutes * 60000;
-    const entries = await api.insights.getLogEntries({ uri: args.insight.uri, id: args.insight.id, resolution: resolution });
+
+    let request = { uri: args.insight.uri, id: args.insight.id };
+    if (!args.booleanBasedCapability) {
+      request.resolution = resolution;
+    }
+    const entries = await api.insights.getLogEntries(request);
     this.log('fetching entries completed', (Date.now() - start) + ' MS');
+
+    const booleanBasedCapability = args.insight.type == 'boolean';
 
     start = Date.now();
     let result = [];
@@ -153,8 +234,8 @@ class InsightTrendsApp extends Homey.App {
       if (date < minDate) {
         break;
       }
-      if (entry.v) {
-        result.push({ x: date / 1000, y: entry.v })
+      if (entry.v != null) {
+        result.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
       }
     }
     this.log('transforming entries completed', (Date.now() - start) + ' MS');
@@ -162,16 +243,28 @@ class InsightTrendsApp extends Homey.App {
     return result;
   }
 
-  insightAutocompleteListener(query, args) {
+  numberInsightAutocompleteListener(query, args) {
+    return Homey.app.insightAutocompleteListener(query, args, { type: 'number' });
+  }
+
+  booleanInsightAutocompleteListener(query, args) {
+    return Homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
+  }
+
+  allInsightAutocompleteListener(query, args) {
+    return Homey.app.insightAutocompleteListener(query, args, {});
+  }
+
+  insightAutocompleteListener(query, args, filter) {
     return new Promise(async (resolve, reject) => {
       try {
         const api = await Homey.app.getApi();
-        const logs = await api.insights.getLogs({ type: 'number' });
+        const logs = await api.insights.getLogs(filter);
         resolve(
           logs
-            .filter(e => e.type == 'number')
+            .filter(e => !filter.type || e.type == filter.type)
             .map(e => {
-              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri }
+              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, booleanBasedCapability: e.type == 'boolean' }
               if (e.uriObj.iconObj) {
                 result.icon = e.uriObj.iconObj.url;
               }
@@ -180,12 +273,130 @@ class InsightTrendsApp extends Homey.App {
               }
               return result;
             })
+            .sort((i, j) =>
+              ('' + i.description).localeCompare(j.description)
+            )
         );
       } catch (error) {
         Homey.app.log('error fetching insights', error);
         reject(error);
       }
     });
+  }
+
+  async getInsights(search, callback) {
+    try {
+      const api = await Homey.app.getApi();
+      const logs = await api.insights.getLogs({});
+      callback(null,
+        logs
+          .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
+          .map(e => {
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#062f42' }
+            if (e.uriObj.color) {
+              result.color = e.uriObj.color;
+            }
+            if (e.uriObj.iconObj) {
+              result.icon = e.uriObj.iconObj.url;
+            }
+            if (e.units) {
+              result.name = result.name + ' (' + e.units + ')';
+            }
+            return result;
+          })
+          .sort((i, j) => i.title < j.title)
+      );
+    } catch (error) {
+      Homey.app.log('error fetching insights', error);
+      callback(error, null);
+    }
+  }
+
+  async getTrends(id, uid, minutes, scopeUnit, callback) {
+    try {
+      let result = {
+        entries: [],
+        booleanBasedCapability: false,
+        trendline: [],
+        performance: {
+          total: Date.now(),
+          calculation: 0,
+          fetchInsight: 0,
+          fetchLogEntries: 0
+        }
+      };
+
+      const resolution = this.getResolution(minutes);
+
+      const api = await Homey.app.getApi();
+      const minDate = Date.now() - minutes * 60000;
+
+      result.performance.fetchInsight = Date.now();
+      const entry = await api.insights.getLog({ uri: uid, id: id });
+      result.performance.fetchInsight = Date.now() - result.performance.fetchInsight;
+      result.lastValue = entry.lastValue;
+
+      result.booleanBasedCapability = entry.type == 'boolean';
+
+      let request = { uri: uid, id: id };
+      if (!result.booleanBasedCapability) {
+        request.resolution = resolution;
+      }
+      result.performance.fetchLogEntries = Date.now();
+      const entries = await api.insights.getLogEntries(request);
+      result.performance.fetchLogEntries = Date.now() - result.performance.fetchLogEntries;
+
+      result.performance.calculation = Date.now();
+
+      for (let i = entries.values.length - 1; i >= 0; i--) {
+        let entry = entries.values[i];
+        const date = Date.parse(entry.t);
+
+        if (date < minDate) {
+          break;
+        }
+        if (entry.v != null) {
+          result.entries.push({ x: date, y: result.booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
+        }
+      }
+
+      const stats = new Stats().push(result.entries.map(e => e.y));
+      const range = stats.range();
+
+      if (result.entries.length > 2) {
+        const trends = createTrend(result.entries, 'x', 'y');
+        const distance = result.entries[0].x - result.entries[result.entries.length - 1].x;
+        result.trend = trends.slope * distance / (minutes / scopeUnit);
+        result.trendline.push({ x: result.entries[0].x, y: trends.calcY(result.entries[0].x) });
+        result.trendline.push({ x: result.entries[result.entries.length - 1].x, y: trends.calcY(result.entries[result.entries.length - 1].x) });
+      } else {
+        result.trend = 0;
+      }
+
+      if (result.booleanBasedCapability) {
+        result.hasFalseValue = result.entries.some(e => e.y == false);
+        result.hasTrueValue = result.entries.some(e => e.y == true);
+        result.amean = stats.amean() >= 0.5 ? true : false;
+        result.median = stats.median() >= 0.5 ? true : false;
+        result.standardDeviation = stats.σ();
+        result.size = result.entries.length;
+      } else {
+        result.min = range[0];
+        result.max = range[1];
+        result.amean = stats.amean();
+        result.median = stats.median();
+        result.standardDeviation = stats.σ();
+        result.size = result.entries.length;
+        result.hasFalseValue = false;
+        result.hasTrueValue = false;
+      }
+      result.performance.calculation = Date.now() - result.performance.calculation;
+      result.performance.total = Date.now() - result.performance.total;
+      callback(null, result);
+    } catch (error) {
+      Homey.app.log('error fetching insights', error);
+      callback(error, null);
+    }
   }
 
 }

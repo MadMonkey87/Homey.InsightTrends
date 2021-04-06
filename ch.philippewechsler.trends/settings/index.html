@@ -4,20 +4,15 @@
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
     <!--<script src='https://cdn.staticaly.com/gh/robertklep/homey-mocks/v0.0.4/homey-settings-mock.js'></script>-->
 
-    <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-        crossorigin="anonymous"></script>-->
     <script src="js/jquery-3.5.1.slim.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/moment.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/animation.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
 </head>
 
 <body>
@@ -27,23 +22,228 @@
     <nav>
         <div class="nav nav-tabs glass-dark" id="nav-tab" role="tablist"
             style="margin-left: 5px; margin-top: 5px; margin-right: 5px;">
-            <a class="nav-item nav-link active" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab"
-                aria-controls="nav-contact" aria-selected="false">About</a>
+            <a class="nav-item nav-link active" id="nav-live-tab" data-toggle="tab" href="#nav-live" role="tab"
+                aria-controls="nav-live" aria-selected="false">Live</a>
+            <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab"
+                aria-controls="nav-about" aria-selected="false">About</a>
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+        <div class="tab-pane fade show active" id="nav-live" role="tabpanel" aria-labelledby="nav-live-tab">
 
+            <!--live tab begin-->
+            <div class="card glass" style="margin-top: 10px;">
+
+                <div class="loading" id="loading">
+                    <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube1"></div>
+                        <div class="sk-cube sk-cube2"></div>
+                        <div class="sk-cube sk-cube3"></div>
+                        <div class="sk-cube sk-cube4"></div>
+                        <div class="sk-cube sk-cube5"></div>
+                        <div class="sk-cube sk-cube6"></div>
+                        <div class="sk-cube sk-cube7"></div>
+                        <div class="sk-cube sk-cube8"></div>
+                        <div class="sk-cube sk-cube9"></div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <h5 class="card-title">Query</h5>
+
+                    <div class="row">
+                        <div class="col">
+                            <label>Insight</label>
+                            <div class="dropdown dropup">
+                                <button class="btn btn-primary" type="button" id="insightDropdownButton"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="width: 100%; text-align: left;">
+                                </button>
+                                <div class="dropdown-menu" style="width: 100%;" aria-labelledby="pollingDropDown"
+                                    id="insightDropdownMenu">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <label>Filter</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="insightFilter">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <label>Scope</label>
+
+                            <div class="input-group-prepend">
+                                <input type="number" class="form-control" id="scope" min="1" id="scope" value="15"
+                                    style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">
+                                <div class="dropdown dropup" style="height: 38px !important;">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="scopeUnitsButton"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="border-radius: 0; height: 100% !important; margin-right: 0">
+                                        Minutes
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="pollingDropDown">
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(1)">Minutes</a>
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(60)">Hours</a>
+                                        <a class="dropdown-item" href="#" onclick="setScopeUnit(1440)">Days</a>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="trendRefreshButton"
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; height: 38px !important;">
+                                    <span class="fa fa-refresh"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title" style="margin-top: 20px;">Chart</h5>
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col-sm">
+                            <canvas id="chart" width="400" height="400">
+                            </canvas>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title" style="margin-top: 20px;">Statistics</h5>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Trend</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="trend">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Standard deviation</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="standarddeviation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Average</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="amean">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Median</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="median">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Minimum</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="min">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Maximum</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="max">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Sample size</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="size">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Last value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="lastValue">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Has true value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="hasTrueValue">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Has false value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="hasFalseValue">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title" style="margin-top: 20px;">Performance</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Total</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfTotal">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Calculations</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfCalc">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Fetch Insights</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfFetchInsights">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>Fetch Data</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="perfFetchData">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--live tab end-->
+        </div>
+        <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
             <!--about tab begin-->
             <div class="card glass" style="margin-top: 10px;">
+                <img class="card-img-top" src="images/icon.svg"
+                    style="padding-left: 20%; padding-right: 20%; padding-top: 35px;padding-bottom: 15px;">
+                <div class="sk-cube-grid" style="margin:10% auto">
+                    <div class="sk-cube sk-cube1"></div>
+                    <div class="sk-cube sk-cube2"></div>
+                    <div class="sk-cube sk-cube3"></div>
+                    <div class="sk-cube sk-cube4"></div>
+                    <div class="sk-cube sk-cube5"></div>
+                    <div class="sk-cube sk-cube6"></div>
+                    <div class="sk-cube sk-cube7"></div>
+                    <div class="sk-cube sk-cube8"></div>
+                    <div class="sk-cube sk-cube9"></div>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Insight Trends for Homey v1.0.0</h5>
+                    <h5 class="card-title">Insight Trends for Homey v2.1.1</h5>
                     <h3 class="card-title">© Philippe Wechsler 2021</h3>
                     <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
                         from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
                 </div>
             </div>
-
             <!--about tab end-->
         </div>
     </div>
@@ -54,9 +254,242 @@
 
             if (Homey.isMock) {
                 Homey.alert('Warning: Homey is mocked only!!!')
+                let store = {};
+                Homey.addRoutes([
+                    {
+                        method: 'GET',
+                        path: '/insights',
+                        public: false,
+                        fn: function (args, callback) {
+                            return callback(null, [{
+                                name: 'temperature 1', description: 'device 1', id: '1', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#ff0000'
+                            }, {
+                                name: 'temperature 2', description: 'device 2', id: '2', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#00ff00'
+                            }, {
+                                name: 'temperature 3', description: 'device 3', id: '3', uri: 'uri', type: 'number', units: '%', booleanBasedCapability: false, color: '#0000ff'
+                            }])
+                        }
+                    },
+                    {
+                        method: 'GET',
+                        path: '/trends',
+                        public: false,
+                        fn: async function (args, callback) {
+                            let entries = [];
+                            let now = Date.now();
+                            for (let i = 0; i < 100; i++) {
+                                entries.push({ x: now + (i * 1000 * 60) - (100 * 1000 * 60), y: Math.random() * 100 });
+                            }
+                            return callback(null, {
+                                entries: entries,
+                                trendline: [{ x: now - (100 * 1000 * 60), y: 0 }, { x: now + (100 * 1000 * 60) - (100 * 1000 * 60), y: 100 }],
+                                min: -100,
+                                max: 100,
+                                amean: 10,
+                                median: 15,
+                                standardDeviation: 5,
+                                trend: 0.45,
+                                size: 10,
+                                lastValue: Math.random() * 100,
+                                performance: {
+                                    total: 0,
+                                    calculation: 0,
+                                    fetchInsight: 0,
+                                    fetchLogEntries: 0
+                                }
+                            })
+                        }
+                    }
+                ]);
             }
 
+            const insightDropdownButton = document.getElementById('insightDropdownButton');
+            const insightDropdownMenu = document.getElementById('insightDropdownMenu');
+            const insightFilter = document.getElementById('insightFilter');
+            const trendRefreshButton = document.getElementById('trendRefreshButton');
+            const scope = document.getElementById('scope');
+            const scopeUnitsButton = document.getElementById('scopeUnitsButton');
+            const loading = document.getElementById('loading');
+
+            insightFilter.addEventListener('blur', (e) => { loadInsights() });
+            trendRefreshButton.addEventListener('click', (e) => { loadTrends() });
+            scope.addEventListener('blur', (e) => { loadTrends() });
+
+            let selectedInsight = null;
+            let scopeUnit = 1;
+
+            function loadInsights() {
+                loading.style.display = 'initial';
+                insightDropdownButton.innerText = 'loading';
+                insightDropdownButton.disabled = true;
+                Homey.api('GET', '/insights?search=' + insightFilter.value, {}, function (error, data) {
+                    insightDropdownButton.disabled = false;
+                    if (error) {
+                        insightDropdownButton.innerText = 'error';
+                    } else {
+                        let html = '';
+                        for (var i = 0; i < data.length; i++) {
+                            html += `
+                                    <a style="font-style:bold; overflow: auto;" class="dropdown-item" href="#" onclick="selectInsight({title:'${data[i].name}',id:'${data[i].id}',uri:'${data[i].uri}',units:'${data[i].units}',color:'${data[i].color}',booleanBasedCapability:${data[i].booleanBasedCapability}})">
+                                        ${data[i].name}
+                                        <p style="font-style:italic; font-size:11">${data[i].description}</p>
+                                    </a>
+                                `;
+                        }
+                        insightDropdownMenu.innerHTML = html;
+                    }
+                    window.selectInsight(null);
+                    loading.style.display = 'none';
+                })
+            }
+
+            function loadTrends() {
+                if (selectedInsight == null) {
+                    return;
+                }
+                loading.style.display = 'initial';
+                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit, {}, function (error, data) {
+                    if (error) {
+                        Homey.alert(error);
+                    } else {
+                        if (selectedInsight.booleanBasedCapability) {
+                            document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) : '-';
+                            document.getElementById('min').value = data.min != null ? data.min.toFixed(2) : '-';
+                            document.getElementById('max').value = data.max != null ? data.max.toFixed(2) : '-';
+                            document.getElementById('amean').value = data.amean;
+                            document.getElementById('median').value = data.median;
+                            document.getElementById('size').value = data.size != null ? data.size : '-';
+                            document.getElementById('lastValue').value = data.lastValue;
+                            document.getElementById('hasFalseValue').value = data.hasFalseValue;
+                            document.getElementById('hasTrueValue').value = data.hasTrueValue;
+                        }
+                        else {
+                            document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
+                            document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('min').value = data.min != null ? data.min.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('max').value = data.max != null ? data.max.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('amean').value = data.amean != null ? data.amean.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('median').value = data.median != null ? data.median.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('size').value = data.size != null ? data.size : '-';
+                            document.getElementById('lastValue').value = data.lastValue != null ? data.lastValue.toFixed(2) + ' ' + selectedInsight.units : '-';
+                            document.getElementById('hasFalseValue').value = '-';
+                            document.getElementById('hasTrueValue').value = '-';
+                        }
+                        document.getElementById('perfTotal').value = data.performance.total + ' MS';
+                        document.getElementById('perfCalc').value = data.performance.calculation + ' MS';
+                        document.getElementById('perfFetchInsights').value = data.performance.fetchInsight + ' MS';
+                        document.getElementById('perfFetchData').value = data.performance.fetchLogEntries + ' MS';
+
+                        var gradient = document.getElementById('chart').getContext('2d').createLinearGradient(0, 0, 0, document.getElementById('chart').clientHeight);
+                        gradient.addColorStop(1, convertHex(selectedInsight.color, 0));
+                        gradient.addColorStop(0.25, convertHex(selectedInsight.color, 85));
+
+                        chart.data.datasets[1].data = data.entries;
+                        chart.data.datasets[1].steppedLine = selectedInsight.booleanBasedCapability;
+                        chart.data.datasets[1].borderColor = selectedInsight.color;
+                        chart.data.datasets[1].backgroundColor = gradient;
+                        chart.data.datasets[0].data = data.trendline;
+                        chart.update();
+                    }
+                    loading.style.display = 'none';
+                })
+            }
+
+            function convertHex(hexCode, opacity) {
+                var hex = hexCode.replace('#', '');
+
+                if (hex.length === 3) {
+                    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+                }
+
+                var r = parseInt(hex.substring(0, 2), 16),
+                    g = parseInt(hex.substring(2, 4), 16),
+                    b = parseInt(hex.substring(4, 6), 16);
+
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
+            }
+
+            window.selectInsight = function (insight) {
+                selectedInsight = insight;
+                if (selectedInsight == null) {
+                    insightDropdownButton.innerText = 'please select';
+                } else {
+                    insightDropdownButton.innerText = selectedInsight.title;
+                    loadTrends();
+                }
+            }
+
+            window.setScopeUnit = function (minutes) {
+                scopeUnit = minutes;
+                switch (scopeUnit) {
+                    case 1: scopeUnitsButton.innerText = 'Minutes'; break;
+                    case 60: scopeUnitsButton.innerText = 'Hours'; break;
+                    case 1440: scopeUnitsButton.innerText = 'Days'; break;
+                    default: scopeUnitsButton.innerText = 'Error'; break;
+                }
+                loadTrends();
+            }
+
+            var chartOptions = {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            showLine: true,
+                            borderColor: 'rgb(36, 72, 106)',
+                            borderWidth: 3,
+                            backgroundColor: 'transparent',
+                            pointRadius: 0,
+                            pointBorderWidth: 0,
+                            data: []
+                        },
+                        {
+                            showLine: true,
+                            borderColor: 'rgb(0, 170, 255)',
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            pointBorderWidth: 0,
+                            data: []
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        xAxes: [
+                            {
+                                id: 'xAxis',
+                                type: 'time',
+                                time: {
+                                    displayFormats: {
+                                        millisecond: 'H:mm:ss.SSS',
+                                        second: 'H:mm:ss',
+                                        minute: 'H:mm',
+                                        hour: 'H:mm'
+                                    }
+                                }
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                id: 'yAxis',
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+
+            let chart = new Chart(document.getElementById('chart').getContext('2d'), chartOptions);
+
             Homey.ready()
+
+            loadInsights();
 
         }
 

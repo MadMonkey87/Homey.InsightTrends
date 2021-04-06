@@ -5,6 +5,9 @@
     "hint": {
         "en": "Fetch the insights of a device capability and perform some analysis. To consume the result you need to create a new flow that gets triggered by the 'Trend calculated' card."
     },
+    "titleFormatted": {
+        "en": "Calculate trend for [[insight]] based on the last [[scope]] [[scopeUnit]]"
+    },
     "args": [
         {
             "type": "autocomplete",

@@ -1,9 +1,9 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ch.philippewechsler.trends",
-  "version": "1.0.0",
+  "version": "2.1.1",
   "compatibility": ">=4.0.0",
-  "brandColor": "#ff00b8",
+  "brandColor": "#062f42",
   "sdk": 2,
   "name": {
     "en": "Insight Trends"
@@ -38,14 +38,98 @@
       }
     }
   },
+  "source": "https://github.com/MadMonkey87/Homey.InsightTrends",
+  "homeyCommunityTopicId": 41992,
   "flow": {
     "triggers": [
       {
         "title": {
-          "en": "Trend calculated"
+          "en": "Trend calculated (boolean)"
         },
         "hint": {
           "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
+        },
+        "titleFormatted": {
+          "en": "When the trend calculation for [[insight]] has finished"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "hasTrueValue",
+            "type": "boolean",
+            "title": {
+              "en": "any value is 'true'"
+            },
+            "example": true
+          },
+          {
+            "name": "hasFalseValue",
+            "type": "boolean",
+            "title": {
+              "en": "any value is 'false'"
+            },
+            "example": false
+          },
+          {
+            "name": "amean",
+            "type": "boolean",
+            "title": {
+              "en": "average"
+            },
+            "example": false
+          },
+          {
+            "name": "median",
+            "type": "boolean",
+            "title": {
+              "en": "median"
+            },
+            "example": false
+          },
+          {
+            "name": "size",
+            "type": "number",
+            "title": {
+              "en": "dataset size"
+            },
+            "example": 125
+          }
+        ],
+        "id": "boolean_trend_calculated"
+      },
+      {
+        "title": {
+          "en": "An unexpected error happend"
+        },
+        "tokens": [
+          {
+            "name": "error",
+            "type": "string",
+            "title": {
+              "en": "error"
+            },
+            "example": "something bad happened"
+          }
+        ],
+        "id": "error"
+      },
+      {
+        "title": {
+          "en": "Trend calculated (number)"
+        },
+        "hint": {
+          "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
+        },
+        "titleFormatted": {
+          "en": "When the trend calculation for [[insight]] has finished"
         },
         "args": [
           {
@@ -120,7 +204,121 @@
     "conditions": [
       {
         "title": {
-          "en": "Analyse Insights"
+          "en": "Analyse Insights (boolean)"
+        },
+        "titletitleFormatted": {
+          "en": "Check if [[characteristic]] is [[operator]] for the past [[scope]] [[scopeUnit]] on [[insight]]"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          },
+          {
+            "type": "number",
+            "name": "scope",
+            "title": {
+              "en": "Scope"
+            },
+            "hint": {
+              "en": "How long you want to go back in history?"
+            },
+            "min": 1,
+            "value": 15
+          },
+          {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+              "en": "Scope units"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "Minutes"
+                }
+              },
+              {
+                "id": "60",
+                "label": {
+                  "en": "Hours"
+                }
+              },
+              {
+                "id": "1440",
+                "label": {
+                  "en": "Days"
+                }
+              }
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "characteristic",
+            "title": {
+              "en": "Characteristic"
+            },
+            "values": [
+              {
+                "id": "hasTrueValue",
+                "label": {
+                  "en": "Any value is 'true'"
+                }
+              },
+              {
+                "id": "hasFalseValue",
+                "label": {
+                  "en": "Any value is 'false'"
+                }
+              },
+              {
+                "id": "average",
+                "label": {
+                  "en": "Average"
+                }
+              },
+              {
+                "id": "median",
+                "label": {
+                  "en": "Median"
+                }
+              }
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "operator",
+            "title": {
+              "en": "Operator"
+            },
+            "values": [
+              {
+                "id": "true",
+                "label": {
+                  "en": "True"
+                }
+              },
+              {
+                "id": "false",
+                "label": {
+                  "en": "False"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "boolean_condition"
+      },
+      {
+        "title": {
+          "en": "Analyse Insights (number)"
+        },
+        "titleFormatted": {
+          "en": "Check if [[characteristic]] is [[operator]] [[value]] for the past [[scope]] [[scopeUnit]] on [[insight]]"
         },
         "args": [
           {
@@ -277,6 +475,9 @@
         },
         "hint": {
           "en": "Fetch the insights of a device capability and perform some analysis. To consume the result you need to create a new flow that gets triggered by the 'Trend calculated' card."
+        },
+        "titleFormatted": {
+          "en": "Calculate trend for [[insight]] based on the last [[scope]] [[scopeUnit]]"
         },
         "args": [
           {
