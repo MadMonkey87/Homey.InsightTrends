@@ -7,5 +7,8 @@
   },
   "2.1.0": {
     "en": "Some small fixes"
+  },
+  "2.1.1": {
+    "en": "Fixed wrong ordering of the insights, provided a new error trigger card"
   }
 }

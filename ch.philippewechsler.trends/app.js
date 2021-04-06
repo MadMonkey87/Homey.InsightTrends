@@ -9,6 +9,10 @@ class InsightTrendsApp extends Homey.App {
   async onInit() {
     this.log('InsightTrendsApp has been initialized');
 
+    const errorTrigger = new Homey.FlowCardTrigger('error')
+    errorTrigger
+      .register();
+
     const numberCalculatedTrigger = new Homey.FlowCardTrigger('number_trend_calculated')
     numberCalculatedTrigger
       .register()
@@ -41,6 +45,7 @@ class InsightTrendsApp extends Homey.App {
             resolve(this.compareNumberValue(value, args));
           } catch (e) {
             this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
             reject(e);
           }
         });
@@ -58,6 +63,7 @@ class InsightTrendsApp extends Homey.App {
             resolve(this.compareBooleanValue(value, args));
           } catch (e) {
             this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
             reject(e);
           }
         });
@@ -112,6 +118,7 @@ class InsightTrendsApp extends Homey.App {
             resolve();
           } catch (e) {
             this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
             reject(e);
           }
         });
@@ -266,7 +273,9 @@ class InsightTrendsApp extends Homey.App {
               }
               return result;
             })
-            .sort((i, j) => i.title < j.title)
+            .sort((i, j) =>
+              ('' + i.description).localeCompare(j.description)
+            )
         );
       } catch (error) {
         Homey.app.log('error fetching insights', error);
@@ -283,7 +292,7 @@ class InsightTrendsApp extends Homey.App {
         logs
           .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
           .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#baa48d' }
+            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#062f42' }
             if (e.uriObj.color) {
               result.color = e.uriObj.color;
             }
