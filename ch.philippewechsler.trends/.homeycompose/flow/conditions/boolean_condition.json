@@ -2,7 +2,7 @@
     "title": {
         "en": "Analyse Insights (boolean)"
     },
-    "titletitleFormatted": {
+    "titleFormatted": {
         "en": "Check if [[characteristic]] is [[operator]] for the past [[scope]] [[scopeUnit]] on [[insight]]"
     },
     "args": [

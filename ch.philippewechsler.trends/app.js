@@ -273,6 +273,7 @@ class InsightTrendsApp extends Homey.App {
               }
               return result;
             })
+            .filter(e => e.name.toLowerCase().includes(query.toLowerCase()) || e.description.toLowerCase().includes(query.toLowerCase()))
             .sort((i, j) =>
               ('' + i.description).localeCompare(j.description)
             )
