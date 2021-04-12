@@ -11,7 +11,7 @@
   "2.1.1": {
     "en": "Fixed wrong ordering of the insights, provided a new error trigger card"
   },
-  "2.1.2": {
+  "2.1.3": {
     "en": "Fixed a bug that prevented the search in the insights dropdowns"
   }
 }
