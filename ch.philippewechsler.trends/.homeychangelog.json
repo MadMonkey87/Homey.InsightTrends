@@ -13,5 +13,8 @@
   },
   "2.1.3": {
     "en": "Fixed a bug that prevented the search in the insights dropdowns"
+  },
+  "3.0.0": {
+    "en": "Upgrade SDK to v3"
   }
 }
