@@ -101,13 +101,21 @@ class InsightTrendsApp extends Homey.App {
             } else {
               const trends = createTrend(logs, 'x', 'y');
 
+              let trend = 0;
+
+              if (logs.length >= 2) {
+                const distance = logs[0].x - logs[logs.length - 1].x;
+                const minutes = args.scope * parseInt(args.scopeUnit);
+                trend = trends.slope * distance / (minutes / args.scopeUnit);
+              }
+
               const numberTokens = {
                 min: range[0],
                 max: range[1],
                 amean: stats.amean(),
                 median: stats.median(),
                 standardDeviation: stats.σ(),
-                trend: trends.slope,
+                trend: trend,
                 size: logs.length
               };
               this.log('number calculation completed', (Date.now() - start) + ' MS', numberTokens);
