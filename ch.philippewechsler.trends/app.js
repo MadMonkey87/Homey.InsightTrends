@@ -9,11 +9,11 @@ class InsightTrendsApp extends Homey.App {
   async onInit() {
     this.log('InsightTrendsApp has been initialized');
 
-    const errorTrigger = new Homey.FlowCardTrigger('error')
+    const errorTrigger = this.homey.flow.getTriggerCard('error')
     errorTrigger
       .register();
 
-    const numberCalculatedTrigger = new Homey.FlowCardTrigger('number_trend_calculated')
+    const numberCalculatedTrigger = this.homey.flow.getTriggerCard('number_trend_calculated')
     numberCalculatedTrigger
       .register()
       .registerRunListener(async (args, state) => {
@@ -24,7 +24,7 @@ class InsightTrendsApp extends Homey.App {
       .getArgument('insight')
       .registerAutocompleteListener(this.numberInsightAutocompleteListener);
 
-    const booleanCalculatedTrigger = new Homey.FlowCardTrigger('boolean_trend_calculated')
+    const booleanCalculatedTrigger = this.homey.flow.getTriggerCard('boolean_trend_calculated')
     booleanCalculatedTrigger
       .register()
       .registerRunListener(async (args, state) => {
@@ -35,7 +35,7 @@ class InsightTrendsApp extends Homey.App {
       .getArgument('insight')
       .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
-    const numberCondition = new Homey.FlowCardCondition('number_condition')
+    const numberCondition = this.homey.flow.getConditionCard('number_condition')
       .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
@@ -53,7 +53,7 @@ class InsightTrendsApp extends Homey.App {
       .getArgument('insight')
       .registerAutocompleteListener(this.numberInsightAutocompleteListener);
 
-    const booleanCondition = new Homey.FlowCardCondition('boolean_condition')
+    const booleanCondition = this.homey.flow.getConditionCard('boolean_condition')
       .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
@@ -71,7 +71,7 @@ class InsightTrendsApp extends Homey.App {
       .getArgument('insight')
       .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
-    const calculateTrendAction = new Homey.FlowCardAction('calculate_trend')
+    const calculateTrendAction = this.homey.flow.getActionCard('calculate_trend')
       .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
