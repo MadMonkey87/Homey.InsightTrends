@@ -15,6 +15,6 @@
     "en": "Fixed a bug that prevented the search in the insights dropdowns"
   },
   "2.2.0": {
-    "en": "Updated packages"
+    "en": "Updated packages, fixed a bug that would cause wrong trend values"
   }
 }
