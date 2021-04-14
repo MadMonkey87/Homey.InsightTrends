@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "app.js",
   "devDependencies": {
-    "homey": "^2.14.2"
+    "homey": "^2.15.2"
   },
   "dependencies": {
     "athom-api": "^3.4.0",
     "fast-stats": "0.0.6",
-    "trend": "^0.3.0",
     "trendline": "^0.3.1"
   }
 }
