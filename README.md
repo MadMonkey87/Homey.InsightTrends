@@ -1,6 +1,6 @@
 # Insight Trends
 
-[![current version](https://img.shields.io/badge/version-2.1.2-<COLOR>.svg)](https://shields.io/)
+[![current version](https://img.shields.io/badge/version-2.2.0-<COLOR>.svg)](https://shields.io/)
 
 Homey features powerful insights that allow you to see all sensor measurements and it's development in the past. Get one step further and not only see the insights put also act accordingly or even see a little bit into the future!
 
