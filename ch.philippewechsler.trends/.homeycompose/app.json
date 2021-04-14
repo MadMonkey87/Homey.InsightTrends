@@ -38,5 +38,15 @@
     }
   },
   "source": "https://github.com/MadMonkey87/Homey.InsightTrends",
-  "homeyCommunityTopicId": 41992
+  "homeyCommunityTopicId": 41992,
+  "api": {
+    "getInsights": {
+      "method": "get",
+      "path": "/insights"
+    },
+    "getTrends": {
+      "method": "get",
+      "path": "/trends"
+    }
+  }
 }

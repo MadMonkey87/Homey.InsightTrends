@@ -9,13 +9,10 @@ class InsightTrendsApp extends Homey.App {
   async onInit() {
     this.log('InsightTrendsApp has been initialized');
 
-    const errorTrigger = this.homey.flow.getTriggerCard('error')
-    errorTrigger
-      .register();
+    const errorTrigger = this.homey.flow.getTriggerCard('error');
 
     const numberCalculatedTrigger = this.homey.flow.getTriggerCard('number_trend_calculated')
     numberCalculatedTrigger
-      .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
           resolve(args.insight.uri == state.uri && args.insight.id == state.id);
@@ -26,7 +23,6 @@ class InsightTrendsApp extends Homey.App {
 
     const booleanCalculatedTrigger = this.homey.flow.getTriggerCard('boolean_trend_calculated')
     booleanCalculatedTrigger
-      .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
           resolve(args.insight.uri == state.uri && args.insight.id == state.id);
@@ -36,7 +32,6 @@ class InsightTrendsApp extends Homey.App {
       .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
     const numberCondition = this.homey.flow.getConditionCard('number_condition')
-      .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
           try {
@@ -54,7 +49,6 @@ class InsightTrendsApp extends Homey.App {
       .registerAutocompleteListener(this.numberInsightAutocompleteListener);
 
     const booleanCondition = this.homey.flow.getConditionCard('boolean_condition')
-      .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
           try {
@@ -72,7 +66,6 @@ class InsightTrendsApp extends Homey.App {
       .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
 
     const calculateTrendAction = this.homey.flow.getActionCard('calculate_trend')
-      .register()
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
           try {
