@@ -203,10 +203,10 @@ class InsightTrendsApp extends Homey.App {
 
   async getLogEntries(args) {
     const minutes = args.scope * parseInt(args.scopeUnit);
-    let resolution = this.getResolution(minutes);
+    let resolution = this.homey.app.getResolution(minutes);
 
     let start = Date.now();
-    const api = await Homey.app.getApi();
+    const api = await this.homey.app.getApi();
     const minDate = Date.now() - minutes * 60000;
 
     let request = { uri: args.insight.uri, id: args.insight.id };
@@ -214,7 +214,7 @@ class InsightTrendsApp extends Homey.App {
       request.resolution = resolution;
     }
     const entries = await api.insights.getLogEntries(request);
-    this.log('fetching entries completed', (Date.now() - start) + ' MS');
+    this.homey.app.log('fetching entries completed', (Date.now() - start) + ' MS');
 
     const booleanBasedCapability = args.insight.type == 'boolean';
 
@@ -231,27 +231,27 @@ class InsightTrendsApp extends Homey.App {
         result.push({ x: date / 1000, y: booleanBasedCapability ? entry.v ? 0 : 1 : entry.v });
       }
     }
-    this.log('transforming entries completed', (Date.now() - start) + ' MS');
+    this.homey.app.log('transforming entries completed', (Date.now() - start) + ' MS');
 
     return result;
   }
 
   numberInsightAutocompleteListener(query, args) {
-    return Homey.app.insightAutocompleteListener(query, args, { type: 'number' });
+    return this.homey.app.insightAutocompleteListener(query, args, { type: 'number' });
   }
 
   booleanInsightAutocompleteListener(query, args) {
-    return Homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
+    return this.homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
   }
 
   allInsightAutocompleteListener(query, args) {
-    return Homey.app.insightAutocompleteListener(query, args, {});
+    return this.homey.app.insightAutocompleteListener(query, args, {});
   }
 
   insightAutocompleteListener(query, args, filter) {
     return new Promise(async (resolve, reject) => {
       try {
-        const api = await Homey.app.getApi();
+        const api = await this.homey.app.getApi();
         const logs = await api.insights.getLogs(filter);
         resolve(
           logs
@@ -272,7 +272,7 @@ class InsightTrendsApp extends Homey.App {
             )
         );
       } catch (error) {
-        Homey.app.log('error fetching insights', error);
+        this.homey.app.log('error fetching insights', error);
         reject(error);
       }
     });
@@ -280,7 +280,7 @@ class InsightTrendsApp extends Homey.App {
 
   async getInsights(search, callback) {
     try {
-      const api = await Homey.app.getApi();
+      const api = await this.homey.app.getApi();
       const logs = await api.insights.getLogs({});
       callback(null,
         logs
@@ -301,7 +301,7 @@ class InsightTrendsApp extends Homey.App {
           .sort((i, j) => i.title < j.title)
       );
     } catch (error) {
-      Homey.app.log('error fetching insights', error);
+      this.homey.app.log('error fetching insights', error);
       callback(error, null);
     }
   }
@@ -320,9 +320,9 @@ class InsightTrendsApp extends Homey.App {
         }
       };
 
-      const resolution = this.getResolution(minutes);
+      const resolution = this.homey.app.getResolution(minutes);
 
-      const api = await Homey.app.getApi();
+      const api = await this.homey.app.getApi();
       const minDate = Date.now() - minutes * 60000;
 
       result.performance.fetchInsight = Date.now();
@@ -388,7 +388,7 @@ class InsightTrendsApp extends Homey.App {
       result.performance.total = Date.now() - result.performance.total;
       callback(null, result);
     } catch (error) {
-      Homey.app.log('error fetching insights', error);
+      this.homey.app.log('error fetching insights', error);
       callback(error, null);
     }
   }
