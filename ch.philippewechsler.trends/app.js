@@ -308,7 +308,7 @@ class InsightTrendsApp extends Homey.App {
     }
   }
 
-  async getTrends(id, uid, minutes, scopeUnit, callback) {
+  async getTrends(id, uid, minutes, scopeUnit, percentile) {
     try {
       let result = {
         entries: [],
@@ -385,6 +385,7 @@ class InsightTrendsApp extends Homey.App {
         result.size = result.entries.length;
         result.hasFalseValue = false;
         result.hasTrueValue = false;
+        result.percentile = stats.percentile(percentile);
       }
       result.performance.calculation = Date.now() - result.performance.calculation;
       result.performance.total = Date.now() - result.performance.total;

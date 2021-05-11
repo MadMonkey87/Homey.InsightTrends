@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/animation.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
+
+    <script src="js/bootstrap-slider.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-slider.min.css">
 </head>
 
 <body>
@@ -186,6 +189,22 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-6">
+                            <label>percentile param</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="percentileParameter"
+                                    style="width: 100%; margin-top: 7px;">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label>percentile value</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" disabled value="-" id="percentileValue">
+                            </div>
+                        </div>
+                    </div>
+
                     <h5 class="card-title" style="margin-top: 20px;">Performance</h5>
                     <div class="row">
                         <div class="col-6">
@@ -349,7 +368,7 @@
                     return;
                 }
                 loading.style.display = 'initial';
-                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit, {}, function (error, result) {
+                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit + '&percentile=' + selectedInsight.percentile, {}, function (error, result) {
                     if (error || result.error) {
                         Homey.alert(error);
                     } else {
@@ -365,6 +384,8 @@
                             document.getElementById('lastValue').value = data.lastValue;
                             document.getElementById('hasFalseValue').value = data.hasFalseValue;
                             document.getElementById('hasTrueValue').value = data.hasTrueValue;
+                            document.getElementById('percentileValue').value = '-';
+                            document.getElementById('percentileParameter').disabled = true;
                         }
                         else {
                             document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
@@ -377,6 +398,9 @@
                             document.getElementById('lastValue').value = data.lastValue != null ? data.lastValue.toFixed(2) + ' ' + selectedInsight.units : '-';
                             document.getElementById('hasFalseValue').value = '-';
                             document.getElementById('hasTrueValue').value = '-';
+                            document.getElementById('percentileValue').value = '-';
+                            document.getElementById('percentileParameter').disabled = false;
+                            document.getElementById('percentileValue').value = data.percentile != null ? data.percentile.toFixed(2) + ' ' + selectedInsight.units : '-';
                         }
                         document.getElementById('perfTotal').value = data.performance.total + ' MS';
                         document.getElementById('perfCalc').value = data.performance.calculation + ' MS';
@@ -398,6 +422,19 @@
                 })
             }
 
+            var slider = new Slider('#percentileParameter', {
+                min: "0",
+                max: "100",
+                step: "0.1",
+                value: 50,
+                tooltip: "show",
+                formatter: (v) => v + " %"
+            });
+            slider.on("slideStop", function (sliderValue) {
+                selectedInsight.percentile = sliderValue;
+                loadTrends();
+            });
+
             function convertHex(hexCode, opacity) {
                 var hex = hexCode.replace('#', '');
 
@@ -410,9 +447,6 @@
                     b = parseInt(hex.substring(4, 6), 16);
 
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
-            }
-
-            if (Homey.isMock) {
             }
 
             window.selectInsight = function (insight) {
