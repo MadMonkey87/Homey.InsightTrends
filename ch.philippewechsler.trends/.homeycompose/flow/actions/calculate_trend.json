@@ -23,7 +23,7 @@
                 "en": "Scope"
             },
             "hint": {
-                "en": "How long you want to go back in history?"
+                "en": "How long you want to go back in time?"
             },
             "min": 1,
             "value": 15
