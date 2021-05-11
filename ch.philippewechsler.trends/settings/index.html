@@ -322,11 +322,12 @@
                 loading.style.display = 'initial';
                 insightDropdownButton.innerText = 'loading';
                 insightDropdownButton.disabled = true;
-                Homey.api('GET', '/insights?search=' + insightFilter.value, {}, function (error, data) {
+                Homey.api('GET', '/insights?search=' + insightFilter.value, {}, function (error, result) {
                     insightDropdownButton.disabled = false;
-                    if (error) {
+                    if (error || result.error) {
                         insightDropdownButton.innerText = 'error';
                     } else {
+                        let data = result.result;
                         let html = '';
                         for (var i = 0; i < data.length; i++) {
                             html += `
@@ -348,10 +349,11 @@
                     return;
                 }
                 loading.style.display = 'initial';
-                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit, {}, function (error, data) {
-                    if (error) {
+                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit, {}, function (error, result) {
+                    if (error || result.error) {
                         Homey.alert(error);
                     } else {
+                        let data = result.result;
                         if (selectedInsight.booleanBasedCapability) {
                             document.getElementById('trend').value = data.trend != null ? data.trend.toFixed(2) : '-';
                             document.getElementById('standarddeviation').value = data.standardDeviation != null ? data.standardDeviation.toFixed(2) : '-';
@@ -408,6 +410,9 @@
                     b = parseInt(hex.substring(4, 6), 16);
 
                 return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')';
+            }
+
+            if (Homey.isMock) {
             }
 
             window.selectInsight = function (insight) {

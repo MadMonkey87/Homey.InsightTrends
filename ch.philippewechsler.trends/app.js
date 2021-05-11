@@ -278,31 +278,33 @@ class InsightTrendsApp extends Homey.App {
     });
   }
 
-  async getInsights(search, callback) {
+  async getInsights(search) {
     try {
       const api = await this.homey.app.getApi();
       const logs = await api.insights.getLogs({});
-      callback(null,
-        logs
-          .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
-          .map(e => {
-            let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#062f42' }
-            if (e.uriObj.color) {
-              result.color = e.uriObj.color;
-            }
-            if (e.uriObj.iconObj) {
-              result.icon = e.uriObj.iconObj.url;
-            }
-            if (e.units) {
-              result.name = result.name + ' (' + e.units + ')';
-            }
-            return result;
-          })
-          .sort((i, j) => i.title < j.title)
-      );
+
+      return {
+        error: null, result:
+          logs
+            .filter(e => search == null || search == '' || (e.title && e.title.toLowerCase().search(search.toLowerCase()) >= 0) || (e.uriObj && e.uriObj.name && e.uriObj.name.toLowerCase().search(search.toLowerCase()) >= 0))
+            .map(e => {
+              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, units: e.units, booleanBasedCapability: e.type == 'boolean', color: '#062f42' }
+              if (e.uriObj.color) {
+                result.color = e.uriObj.color;
+              }
+              if (e.uriObj.iconObj) {
+                result.icon = e.uriObj.iconObj.url;
+              }
+              if (e.units) {
+                result.name = result.name + ' (' + e.units + ')';
+              }
+              return result;
+            })
+            .sort((i, j) => i.title < j.title)
+      }
     } catch (error) {
       this.homey.app.log('error fetching insights', error);
-      callback(error, null);
+      return { error: error, result: null };
     }
   }
 
@@ -386,10 +388,10 @@ class InsightTrendsApp extends Homey.App {
       }
       result.performance.calculation = Date.now() - result.performance.calculation;
       result.performance.total = Date.now() - result.performance.total;
-      callback(null, result);
+      return { error: null, result: result };
     } catch (error) {
       this.homey.app.log('error fetching insights', error);
-      callback(error, null);
+      return { error: error, result: null };
     }
   }
 
