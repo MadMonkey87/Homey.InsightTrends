@@ -1,0 +1,89 @@
+{
+    "title": {
+        "en": "Analyse percentile (boolean based insight)"
+    },
+    "titleFormatted": {
+        "en": "Check if [[percent]] of the values of [[insight]] are [[operator]] [[value]] for the past [[scope]] [[scopeUnit]]"
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        },
+        {
+            "type": "number",
+            "name": "scope",
+            "title": {
+                "en": "Scope"
+            },
+            "hint": {
+                "en": "How long you want to go back in history?"
+            },
+            "min": 1,
+            "value": 15
+        },
+        {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+                "en": "Scope units"
+            },
+            "values": [
+                {
+                    "id": "1",
+                    "label": {
+                        "en": "Minutes"
+                    }
+                },
+                {
+                    "id": "60",
+                    "label": {
+                        "en": "Hours"
+                    }
+                },
+                {
+                    "id": "1440",
+                    "label": {
+                        "en": "Days"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "name": "percent",
+            "title": {
+                "en": "Percent"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "value": 50,
+            "label": "%"
+        },
+        {
+            "type": "dropdown",
+            "name": "operator",
+            "title": {
+                "en": "Operator"
+            },
+            "values": [
+                {
+                    "id": "true",
+                    "label": {
+                        "en": "True"
+                    }
+                },
+                {
+                    "id": "false",
+                    "label": {
+                        "en": "False"
+                    }
+                }
+            ]
+        }
+    ]
+}
