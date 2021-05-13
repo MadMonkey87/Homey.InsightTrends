@@ -1,0 +1,71 @@
+{
+    "title": {
+        "en": "Calculate percentile"
+    },
+    "hint": {
+        "en": "Fetch the insights of a device capability and calculate the percentile value. To consume the result you need to create a new flow that gets triggered by the 'Percentile calculated' card."
+    },
+    "titleFormatted": {
+        "en": "Calculate percentile of [[percent]] for [[insight]] based on the last [[scope]] [[scopeUnit]]"
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        },
+        {
+            "type": "number",
+            "name": "scope",
+            "title": {
+                "en": "Scope"
+            },
+            "hint": {
+                "en": "How long you want to go back in time?"
+            },
+            "min": 1,
+            "value": 15
+        },
+        {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+                "en": "Scope units"
+            },
+            "values": [
+                {
+                    "id": "1",
+                    "label": {
+                        "en": "Minutes"
+                    }
+                },
+                {
+                    "id": "60",
+                    "label": {
+                        "en": "Hours"
+                    }
+                },
+                {
+                    "id": "1440",
+                    "label": {
+                        "en": "Days"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "name": "percent",
+            "title": {
+                "en": "Percent"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 0.1,
+            "value": 50,
+            "label": "%"
+        }
+    ]
+}

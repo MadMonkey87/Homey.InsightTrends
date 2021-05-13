@@ -1,0 +1,38 @@
+{
+    "title": {
+        "en": "Percentile calculated"
+    },
+    "hint": {
+        "en": "Use another flow that uses the 'Calculate percentile' card. This card then gets triggered with the results if the calculation has completed."
+    },
+    "titleFormatted": {
+        "en": "When the percentile calculation for [[insight]] has finished"
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+                "en": "Insight"
+            }
+        }
+    ],
+    "tokens": [
+        {
+            "name": "value",
+            "type": "number",
+            "title": {
+                "en": "value"
+            },
+            "example": 25.3
+        },
+        {
+            "name": "percent",
+            "type": "number",
+            "title": {
+                "en": "Percent"
+            },
+            "example": 50
+        }
+    ]
+}
