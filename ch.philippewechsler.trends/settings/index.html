@@ -368,7 +368,7 @@
                     return;
                 }
                 loading.style.display = 'initial';
-                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit + '&percentile=' + selectedInsight.percentile, {}, function (error, result) {
+                Homey.api('GET', '/trends?id=' + selectedInsight.id + '&uid=' + selectedInsight.uri + '&minutes=' + scopeUnit * scope.value + '&scopeUnit=' + scopeUnit + '&percentile=' + selectedInsight.percentile ?? 50, {}, function (error, result) {
                     if (error || result.error) {
                         Homey.alert(error);
                     } else {
