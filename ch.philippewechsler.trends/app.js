@@ -18,8 +18,9 @@ class InsightTrendsApp extends Homey.App {
           resolve(args.insight.uri == state.uri && args.insight.id == state.id);
         })
       })
-      .getArgument('insight')
-      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.numberInsightAutocompleteListener(query, args);
+      });
 
     const booleanCalculatedTrigger = this.homey.flow.getTriggerCard('boolean_trend_calculated')
     booleanCalculatedTrigger
@@ -28,8 +29,9 @@ class InsightTrendsApp extends Homey.App {
           resolve(args.insight.uri == state.uri && args.insight.id == state.id);
         })
       })
-      .getArgument('insight')
-      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.booleanInsightAutocompleteListener(query, args);
+      });
 
     const numberCondition = this.homey.flow.getConditionCard('number_condition')
       .registerRunListener(async (args, state) => {
@@ -45,8 +47,9 @@ class InsightTrendsApp extends Homey.App {
           }
         });
       })
-      .getArgument('insight')
-      .registerAutocompleteListener(this.numberInsightAutocompleteListener);
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.numberInsightAutocompleteListener(query, args);
+      });
 
     const booleanCondition = this.homey.flow.getConditionCard('boolean_condition')
       .registerRunListener(async (args, state) => {
@@ -62,8 +65,9 @@ class InsightTrendsApp extends Homey.App {
           }
         });
       })
-      .getArgument('insight')
-      .registerAutocompleteListener(this.booleanInsightAutocompleteListener);
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.booleanInsightAutocompleteListener(query, args);
+      });
 
     const calculateTrendAction = this.homey.flow.getActionCard('calculate_trend')
       .registerRunListener(async (args, state) => {
@@ -116,8 +120,9 @@ class InsightTrendsApp extends Homey.App {
           }
         });
       })
-      .getArgument('insight')
-      .registerAutocompleteListener(this.allInsightAutocompleteListener);
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.allInsightAutocompleteListener(query, args);
+      });
   }
 
   getApi() {
@@ -236,46 +241,37 @@ class InsightTrendsApp extends Homey.App {
     return result;
   }
 
-  numberInsightAutocompleteListener(query, args) {
-    return this.homey.app.insightAutocompleteListener(query, args, { type: 'number' });
+  async numberInsightAutocompleteListener(query, args) {
+    return await this.homey.app.insightAutocompleteListener(query, args, { type: 'number' });
   }
 
-  booleanInsightAutocompleteListener(query, args) {
-    return this.homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
+  async booleanInsightAutocompleteListener(query, args) {
+    return await this.homey.app.insightAutocompleteListener(query, args, { type: 'boolean' });
   }
 
-  allInsightAutocompleteListener(query, args) {
-    return this.homey.app.insightAutocompleteListener(query, args, {});
+  async allInsightAutocompleteListener(query, args) {
+    return await this.homey.app.insightAutocompleteListener(query, args, {});
   }
 
-  insightAutocompleteListener(query, args, filter) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const api = await this.homey.app.getApi();
-        const logs = await api.insights.getLogs(filter);
-        resolve(
-          logs
-            .filter(e => !filter.type || e.type == filter.type)
-            .map(e => {
-              let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, booleanBasedCapability: e.type == 'boolean' }
-              if (e.uriObj.iconObj) {
-                result.icon = e.uriObj.iconObj.url;
-              }
-              if (e.units) {
-                result.name = result.name + ' (' + e.units + ')';
-              }
-              return result;
-            })
-            .filter(e => !query || (e.name && e.name.toLowerCase().includes(query.toLowerCase())) || (e.description && e.description.toLowerCase().includes(query.toLowerCase())))
-            .sort((i, j) =>
-              ('' + i.description).localeCompare(j.description)
-            )
-        );
-      } catch (error) {
-        this.homey.app.log('error fetching insights', error);
-        reject(error);
-      }
-    });
+  async insightAutocompleteListener(query, args, filter) {
+    const api = await this.homey.app.getApi();
+    const logs = await api.insights.getLogs(filter);
+    return logs
+      .filter(e => !filter.type || e.type == filter.type)
+      .map(e => {
+        let result = { name: e.title, description: e.uriObj.name, id: e.id, uri: e.uri, type: e.type, booleanBasedCapability: e.type == 'boolean' }
+        if (e.uriObj.iconObj) {
+          result.icon = e.uriObj.iconObj.url;
+        }
+        if (e.units) {
+          result.name = result.name + ' (' + e.units + ')';
+        }
+        return result;
+      })
+      .filter(e => !query || (e.name && e.name.toLowerCase().includes(query.toLowerCase())) || (e.description && e.description.toLowerCase().includes(query.toLowerCase())))
+      .sort((i, j) =>
+        ('' + i.description).localeCompare(j.description)
+      )
   }
 
   async getInsights(search) {
