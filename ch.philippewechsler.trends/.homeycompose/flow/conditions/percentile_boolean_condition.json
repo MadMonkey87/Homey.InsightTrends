@@ -1,9 +1,9 @@
 {
     "title": {
-        "en": "Analyse percentile (boolean based insight)"
+        "en": "Analyse percentile (boolean)"
     },
     "titleFormatted": {
-        "en": "Check if [[percent]] of the values of [[insight]] are [[operator]] [[value]] for the past [[scope]] [[scopeUnit]]"
+        "en": "Check if [[percent]] of the values of [[insight]] are [[operator]] for the past [[scope]] [[scopeUnit]]"
     },
     "args": [
         {

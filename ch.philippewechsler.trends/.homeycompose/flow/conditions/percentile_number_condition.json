@@ -1,6 +1,6 @@
 {
     "title": {
-        "en": "Analyse percentile (number based insight)"
+        "en": "Analyse percentile (number)"
     },
     "titleFormatted": {
         "en": "Check if [[percent]] of the values of [[insight]] are [[operator]] [[value]] for the past [[scope]] [[scopeUnit]]"
