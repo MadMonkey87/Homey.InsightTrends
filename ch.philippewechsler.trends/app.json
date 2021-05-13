@@ -60,7 +60,7 @@
           "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
         },
         "titleFormatted": {
-          "en": "When the trend calculation for [[insight]] has finished"
+          "en": "When the trend calculation for boolean based [[insight]] has finished"
         },
         "args": [
           {
@@ -139,7 +139,7 @@
           "en": "Use another flow that uses the 'Calculate trend' card. This card then gets triggered with the results if the calculation has completed."
         },
         "titleFormatted": {
-          "en": "When the trend calculation for [[insight]] has finished"
+          "en": "When the trend calculation for number based [[insight]] has finished"
         },
         "args": [
           {
