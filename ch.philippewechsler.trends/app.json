@@ -209,6 +209,53 @@
           }
         ],
         "id": "number_trend_calculated"
+      },
+      {
+        "title": {
+          "en": "Percentile calculated"
+        },
+        "hint": {
+          "en": "Use another flow that uses the 'Calculate percentile' card. This card then gets triggered with the results if the calculation has completed."
+        },
+        "titleFormatted": {
+          "en": "When the percentile calculation for [[insight]] has finished"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "value",
+            "type": "number",
+            "title": {
+              "en": "value"
+            },
+            "example": 25.3
+          },
+          {
+            "name": "percent",
+            "type": "number",
+            "title": {
+              "en": "Percent"
+            },
+            "example": 50
+          },
+          {
+            "name": "size",
+            "type": "number",
+            "title": {
+              "en": "dataset size"
+            },
+            "example": 125
+          }
+        ],
+        "id": "percentile_calculated"
       }
     ],
     "conditions": [
@@ -479,6 +526,78 @@
       }
     ],
     "actions": [
+      {
+        "title": {
+          "en": "Calculate percentile"
+        },
+        "hint": {
+          "en": "Fetch the insights of a device capability and calculate the percentile value. To consume the result you need to create a new flow that gets triggered by the 'Percentile calculated' card."
+        },
+        "titleFormatted": {
+          "en": "Calculate percentile of [[percent]] for [[insight]] based on the last [[scope]] [[scopeUnit]]"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "insight",
+            "title": {
+              "en": "Insight"
+            }
+          },
+          {
+            "type": "number",
+            "name": "scope",
+            "title": {
+              "en": "Scope"
+            },
+            "hint": {
+              "en": "How long you want to go back in time?"
+            },
+            "min": 1,
+            "value": 15
+          },
+          {
+            "type": "dropdown",
+            "name": "scopeUnit",
+            "title": {
+              "en": "Scope units"
+            },
+            "values": [
+              {
+                "id": "1",
+                "label": {
+                  "en": "Minutes"
+                }
+              },
+              {
+                "id": "60",
+                "label": {
+                  "en": "Hours"
+                }
+              },
+              {
+                "id": "1440",
+                "label": {
+                  "en": "Days"
+                }
+              }
+            ]
+          },
+          {
+            "type": "range",
+            "name": "percent",
+            "title": {
+              "en": "Percent"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 0.1,
+            "value": 50,
+            "label": "%"
+          }
+        ],
+        "id": "calculate_percentile"
+      },
       {
         "title": {
           "en": "Calculate trend"

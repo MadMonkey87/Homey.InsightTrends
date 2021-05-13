@@ -33,6 +33,14 @@
                 "en": "Percent"
             },
             "example": 50
+        },
+        {
+            "name": "size",
+            "type": "number",
+            "title": {
+                "en": "dataset size"
+            },
+            "example": 125
         }
     ]
 }

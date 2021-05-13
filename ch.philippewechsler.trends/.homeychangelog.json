@@ -15,6 +15,6 @@
     "en": "Fixed a bug that prevented the search in the insights dropdowns"
   },
   "3.0.0": {
-    "en": "Upgrade SDK to v3"
+    "en": "Upgrade SDK to v3, percentile calculations, bug fixes"
   }
 }

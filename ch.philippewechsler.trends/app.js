@@ -33,6 +33,17 @@ class InsightTrendsApp extends Homey.App {
         return await this.booleanInsightAutocompleteListener(query, args);
       });
 
+    const percentileCalculatedTrigger = this.homey.flow.getTriggerCard('percentile_calculated')
+    percentileCalculatedTrigger
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          resolve(args.insight.uri == state.uri && args.insight.id == state.id);
+        })
+      })
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.allInsightAutocompleteListener(query, args);
+      });
+
     const numberCondition = this.homey.flow.getConditionCard('number_condition')
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
@@ -94,7 +105,7 @@ class InsightTrendsApp extends Homey.App {
               };
               this.log('boolean calculation completed', (Date.now() - start) + ' MS', booleanTokens);
 
-              booleanCalculatedTrigger.trigger(numberTokens, state);
+              booleanCalculatedTrigger.trigger(booleanTokens, state);
             } else {
               const trends = createTrend(logs, 'x', 'y');
 
@@ -111,6 +122,38 @@ class InsightTrendsApp extends Homey.App {
 
               numberCalculatedTrigger.trigger(numberTokens, state);
             }
+
+            resolve();
+          } catch (e) {
+            this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
+            reject(e);
+          }
+        });
+      })
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.allInsightAutocompleteListener(query, args);
+      });
+
+    const calculatePercentileAction = this.homey.flow.getActionCard('calculate_percentile')
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const logs = await this.getLogEntries(args);
+
+            const state = { uri: args.insight.uri, id: args.insight.id };
+            let start = Date.now();
+
+            const stats = new Stats().push(logs.map(e => e.y));
+
+            const tokens = {
+              value: stats.percentile(args.percent),
+              percent: args.percent,
+              size: logs.length
+            };
+            this.log('percentile calculation completed', (Date.now() - start) + ' MS', tokens);
+
+            percentileCalculatedTrigger.trigger(tokens, state);
 
             resolve();
           } catch (e) {
