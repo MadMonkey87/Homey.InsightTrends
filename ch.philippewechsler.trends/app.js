@@ -80,6 +80,42 @@ class InsightTrendsApp extends Homey.App {
         return await this.booleanInsightAutocompleteListener(query, args);
       });
 
+    const percentileNumberCondition = this.homey.flow.getConditionCard('percentile_number_condition')
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const logs = await this.getLogEntries(args);
+            const value = this.getPercentileValue(logs, args);
+            resolve(this.compareNumberValue(value, args));
+          } catch (e) {
+            this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
+            reject(e);
+          }
+        });
+      })
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.numberInsightAutocompleteListener(query, args);
+      });
+
+    const percentileBooleanCondition = this.homey.flow.getConditionCard('percentile_boolean_condition')
+      .registerRunListener(async (args, state) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const logs = await this.getLogEntries(args);
+            const value = this.getPercentileValue(logs, args) >= 0.5 ? true : false;
+            resolve(this.compareBooleanValue(value, args));
+          } catch (e) {
+            this.log(e);
+            errorTrigger.trigger({ error: e.toString() });
+            reject(e);
+          }
+        });
+      })
+      .registerArgumentAutocompleteListener('insight', async (query, args) => {
+        return await this.booleanInsightAutocompleteListener(query, args);
+      });
+
     const calculateTrendAction = this.homey.flow.getActionCard('calculate_trend')
       .registerRunListener(async (args, state) => {
         return new Promise(async (resolve, reject) => {
@@ -221,6 +257,11 @@ class InsightTrendsApp extends Homey.App {
       case 'median': return stats.median() >= 0.5 ? true : false;
       default: return null;
     }
+  }
+
+  getPercentileValue(logs, args) {
+    const stats = new Stats().push(logs.map(e => e.y));
+    return stats.percentile(args.percent);
   }
 
   getResolution(minutes) {
